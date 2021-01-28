@@ -130,3 +130,7 @@ dmypy.json
 
 /data/*
 /tidesurf/exp/*
+
+# C++ build
+/cpp/debug/
+/cpp/release/
