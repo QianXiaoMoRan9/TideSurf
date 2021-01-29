@@ -1,5 +1,5 @@
-#include "server.h"
+#include "tidesurf/server.h"
 
-void TideSurf::test_print() {
+void tidesurf::test_print() {
     std::cout << "Include succeeded\n";
 }

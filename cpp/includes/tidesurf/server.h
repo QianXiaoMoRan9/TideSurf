@@ -1,6 +1,6 @@
 #include <iostream>
 
-namespace TideSurf {
+namespace tidesurf {
 
 void test_print();
 }

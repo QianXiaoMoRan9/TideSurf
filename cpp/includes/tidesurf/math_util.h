@@ -1,4 +1,5 @@
 #include <cstdint>
+namespace tidesurf {
 
 uint32_t power(uint32_t base, uint32_t exp) {
     int result = 1;
@@ -11,4 +12,7 @@ uint32_t power(uint32_t base, uint32_t exp) {
     }
     return result;
 }
+
+}
+
 

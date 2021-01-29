@@ -1,12 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <arrow/api.h>
-#include <cstdint>
-#include <pthread.h>
-#include "tidesurf/server.h"
-
-#define NUM_THREADS 8
+// JSON simple example
+// This example does not handle errors.
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"

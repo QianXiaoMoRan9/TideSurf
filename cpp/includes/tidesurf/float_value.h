@@ -2,7 +2,7 @@
 #include <cmath>
 #include "math_util.h"
 
-namespace TideSurf {
+namespace tidesurf {
 
 /**
  * @brief define the positive floating point value of the 
@@ -12,9 +12,9 @@ class FloatValue {
 public:
     FloatValue(float f_value, uint8_t precision = 2) {
         if (f_value >= 0) {
-            sign_ = true;
-        } else {
             sign_ = false;
+        } else {
+            sign_ = true;
         }
         
         precision_ = power(10, precision);
@@ -42,19 +42,19 @@ public:
     }
 
     FloatValue operator+(const FloatValue &other) {
-        FloatValue 
+        return *(new FloatValue(0, 0, 1));
     }
 
     bool Positive() {
-        return sign_;
+        return ! sign_;
     }
 
     bool Negative() {
-        return ! sign_
+        return sign_;
     }
 
 private:
-    bool sign_; // true is positive, false is negative
+    bool sign_; // false is positive, true is negative
     uint32_t precision_;
     uint32_t int_part_;
     uint32_t float_part_;
