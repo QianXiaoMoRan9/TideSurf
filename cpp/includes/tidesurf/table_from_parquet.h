@@ -49,6 +49,10 @@ namespace tidesurf
             return schema_ptr_;
         }
 
+        std::string GetStringEntry(int64_t row, int64_t column) {
+            return this->GetColumn<arrow::StringArray>(column)->GetString(row);
+        }
+
         template <class ArrayType>
         std::shared_ptr<ArrayType> GetColumn(int column) {
             return std::static_pointer_cast<ArrayType>(table_ptr_->column(column)->chunk(0));

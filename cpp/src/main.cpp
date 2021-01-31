@@ -25,6 +25,7 @@
 
 #include "tidesurf/table_from_parquet.h"
 #include "tidesurf/globals.h"
+#include "tidesurf/file_io.h"
 
 using arrow::DoubleBuilder;
 using arrow::Int64Builder;
@@ -70,18 +71,24 @@ void write_parquet_file(const arrow::Table& table) {
 // #2: Fully read in the file
 arrow::Status read_whole_file() {
   std::cout << "Reading parquet-arrow-example.parquet at once" << std::endl;
-  tidesurf::TableFromParquet *table_from_parquet = new tidesurf::TableFromParquet(tidesurf::STOCK_RECORD_PARQUET_TABLE_SCHEMA, "/home/steven/Desktop/Fast500/astock_parquet/2020-12-21/000001.parquet");
+  tidesurf::TableFromParquet *table_from_parquet = new tidesurf::TableFromParquet(tidesurf::STOCK_LIST_PARQUET_TABLE_SCHEMA, "/home/steven/Desktop/Fast500/astock_parquet/stock_list.parquet");
   std::shared_ptr<arrow::Table> table = table_from_parquet->GetTable();
 
-  auto turnovers =
-      std::static_pointer_cast<arrow::Int64Array>(table->column(30)->chunk(0));
+//   auto turnovers = table_from_parquet->GetColumn<arrow::Int64Array>(30);
 
-  for (int64_t i = 0; i < table->num_rows(); i++) {
-    // Another simplification in this example is that we assume that there are
-    // no null entries, e.g. each row is fill with valid values.
-    int64_t turnover = turnovers->Value(i);
-    std::cout << turnover << "\n";
+//   for (int64_t i = 0; i < table->num_rows(); i++) {
+//     // Another simplification in this example is that we assume that there are
+//     // no null entries, e.g. each row is fill with valid values.
+//     int64_t turnover = turnovers->Value(i);
+//     std::cout << turnover << "\n";
+//   }
+  auto column = table_from_parquet->GetColumn<arrow::StringArray>(0);
+  std::cout << "passhere\n";
+  for (int64_t i = 0; i < table_from_parquet->NumRows(); i ++) {
+      std::string str = column->GetString(i);
+      std::cout << str << "\n";
   }
+  delete table_from_parquet;
   return arrow::Status::OK();
 }
 
@@ -149,4 +156,9 @@ int main(int argc, char** argv) {
   read_single_rowgroup();
   read_single_column();
   read_single_column_chunk();
+
+    std::string content("lets rock!\n");
+    std::shared_ptr<std::string> shared = std::make_shared<std::string>(content);
+    std::cout << *shared;
+    return 0;
 }
