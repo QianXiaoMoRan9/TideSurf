@@ -23,6 +23,9 @@
 #include <parquet/exception.h>
 #include <vector>
 
+#include "tidesurf/table_from_parquet.h"
+#include "tidesurf/globals.h"
+
 using arrow::DoubleBuilder;
 using arrow::Int64Builder;
 using arrow::ListBuilder;
@@ -67,72 +70,8 @@ void write_parquet_file(const arrow::Table& table) {
 // #2: Fully read in the file
 arrow::Status read_whole_file() {
   std::cout << "Reading parquet-arrow-example.parquet at once" << std::endl;
-  std::shared_ptr<arrow::io::ReadableFile> infile;
-  PARQUET_ASSIGN_OR_THROW(
-      infile,
-      arrow::io::ReadableFile::Open("/home/steven/Desktop/Fast500/astock_parquet/2020-12-21/000001.parquet",
-                                    arrow::default_memory_pool()));
-
-  std::unique_ptr<parquet::arrow::FileReader> reader;
-  PARQUET_THROW_NOT_OK(
-      parquet::arrow::OpenFile(infile, arrow::default_memory_pool(), &reader));
-  std::shared_ptr<arrow::Table> table;
-  PARQUET_THROW_NOT_OK(reader->ReadTable(&table));
-  std::cout << "Loaded " << table->num_rows() << " rows in " << table->num_columns()
-            << " columns." << std::endl;
-    
-    
-    std::vector<std::shared_ptr<arrow::Field>> schema_vector = {
-      arrow::field("ask1", arrow::float64()), 
-      arrow::field("ask1_volume", arrow::int64()),
-      arrow::field("ask2", arrow::float64()), 
-      arrow::field("ask2_volume", arrow::int64()),
-      arrow::field("ask3", arrow::float64()), 
-      arrow::field("ask3_volume", arrow::int64()),
-      arrow::field("ask4", arrow::float64()), 
-      arrow::field("ask4_volume", arrow::int64()),
-      arrow::field("ask5", arrow::float64()), 
-      arrow::field("ask5_volume", arrow::int64()),
-      arrow::field("bid1", arrow::float64()), 
-      arrow::field("bid1_volume", arrow::int64()),
-      arrow::field("bid2", arrow::float64()), 
-      arrow::field("bid2_volume", arrow::int64()),
-      arrow::field("bid3", arrow::float64()), 
-      arrow::field("bid3_volume", arrow::int64()),
-      arrow::field("bid4", arrow::float64()), 
-      arrow::field("bid4_volume", arrow::int64()),
-      arrow::field("bid5", arrow::float64()), 
-      arrow::field("bid5_volume", arrow::int64()),
-      arrow::field("buy", arrow::float64()), 
-      arrow::field("close", arrow::float64()), 
-        arrow::field("high", arrow::float64()), 
-        arrow::field("low", arrow::float64()), 
-        arrow::field("now", arrow::float64()), 
-        arrow::field("open", arrow::float64()), 
-        arrow::field("sell", arrow::float64()), 
-      arrow::field("hour", arrow::int64()),
-      arrow::field("minute", arrow::int64()),
-      arrow::field("second", arrow::int64()),
-      arrow::field("turnover", arrow::int64()),
-        arrow::field("volume", arrow::float64()), 
-    };
-  auto expected_schema = std::make_shared<arrow::Schema>(schema_vector);
-
-  if (!expected_schema->Equals(*table->schema())) {
-    // The table doesn't have the expected schema thus we cannot directly
-    // convert it to our target representation.
-    return arrow::Status::Invalid("Schemas are not matching!");
-  }
-
-  // As we have ensured that the table has the expected structure, we can unpack the
-  // underlying arrays. For the primitive columns `id` and `cost` we can use the high
-  // level functions to get the values whereas for the nested column
-  // `cost_components` we need to access the C-pointer to the data to copy its
-  // contents into the resulting `std::vector<double>`. Here we need to be care to
-  // also add the offset to the pointer. This offset is needed to enable zero-copy
-  // slicing operations. While this could be adjusted automatically for double
-  // arrays, this cannot be done for the accompanying bitmap as often the slicing
-  // border would be inside a byte.
+  tidesurf::TableFromParquet *table_from_parquet = new tidesurf::TableFromParquet(tidesurf::STOCK_RECORD_PARQUET_TABLE_SCHEMA, "/home/steven/Desktop/Fast500/astock_parquet/2020-12-21/000001.parquet");
+  std::shared_ptr<arrow::Table> table = table_from_parquet->GetTable();
 
   auto turnovers =
       std::static_pointer_cast<arrow::Int64Array>(table->column(30)->chunk(0));

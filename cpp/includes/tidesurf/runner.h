@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <iostream>
 #include <unordered_map>
+#pragma once
 #include <pthread.h>
 
 #include "stock.h"

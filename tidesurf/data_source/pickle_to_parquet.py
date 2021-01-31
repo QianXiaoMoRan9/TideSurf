@@ -10,7 +10,7 @@ Deduplicate the data from the same date
 Store then into proper parquet file format
 
 Driver args:
-data_folder, destination_parent_folder, number_of_processes, date
+data_folder, destination_parent_folder, date
 
 
 Post process schema:
@@ -256,11 +256,10 @@ def job(data_folder, destination_folder, cur_date, process):
         pq.write_table(table, output_path)
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 5, "There must be 4 arguments"
+    assert len(sys.argv) == 4, "There must be 4 arguments"
     [
         data_folder,
         destination_parent_folder,
-        num_process,
         cur_date
     ] = sys.argv[1:]
 
