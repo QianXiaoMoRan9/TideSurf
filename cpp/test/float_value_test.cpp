@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "float_value.h"
 
-using namespace TideSurf;
+using namespace tidesurf;
 
 class FloatValueTest : public ::testing::Test
 {

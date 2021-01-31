@@ -40,11 +40,7 @@ public:
     uint32_t GetFloatPart() {
         return float_part_;
     }
-
-    FloatValue operator+(const FloatValue &other) {
-        return *(new FloatValue(0, 0, 1));
-    }
-
+    
     bool Positive() {
         return ! sign_;
     }
