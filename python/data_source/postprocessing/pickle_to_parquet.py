@@ -194,6 +194,7 @@ def dump_partition(
         # remove the processed stock from the records dict
         # if reaches the number of stocks per partition, then terminate
         del records_dict[code]
+        stock_partition_dict[code] = partition
         num_keys_concatenated += 1
         if (num_keys_concatenated == min_num_stock_in_partition):
             break
@@ -305,6 +306,12 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
         records_dict,
         stock_partition_dict,
         0)
+
+    # dump the stock_partition_map
+    code_to_partition_json_path = os.path.join(
+        destination_folder, cur_date, "code_to_partition_map.json")
+    with open(code_to_partition_json_path, "w") as json_f:
+        json.dump(stock_partition_dict, json_f)
 
 
 if __name__ == "__main__":
