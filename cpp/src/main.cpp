@@ -82,11 +82,15 @@ arrow::Status read_whole_file() {
 //     int64_t turnover = turnovers->Value(i);
 //     std::cout << turnover << "\n";
 //   }
-  auto column = record_table->GetColumn<arrow::StringArray>(0);
+  auto column_iterator = tidesurf::RecordTableStringColumnIterator(*record_table, 0);
   std::cout << "passhere\n";
-  for (int64_t i = 0; i < record_table->NumRows(); i ++) {
-      std::string str = column->GetString(i);
-      std::cout << str << "\n";
+  // for (int64_t i = 0; i < record_table->NumRows(); i ++) {
+  //     std::string str = column->GetString(i);
+  //     std::cout << str << "\n";
+  // }
+  while (column_iterator.HasNext()) {
+    std::string str = column_iterator.Next();
+    std::cout << str << "\n";
   }
   delete record_table;
   return arrow::Status::OK();

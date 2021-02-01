@@ -6,13 +6,12 @@
 #include <parquet/exception.h>
 #include <vector>
 
-#include "tidesurf_macros.h"
-#include "tidesurf_types.h"
+#include "tidesurf/tidesurf_macros.h"
+#include "tidesurf/tidesurf_types.h"
 
 using arrow::DoubleBuilder;
 using arrow::Int64Builder;
 using arrow::ListBuilder;
-
 namespace tidesurf
 {
 
@@ -114,19 +113,19 @@ namespace tidesurf
             }
 
             int64_t new_row_index = row_number - (total_size - chunk_size_vector_[chunk_index]);
-            return std::make_pair<int64_t, int64_t>(chunk_index, new_row_index);
+            return std::make_pair(chunk_index, new_row_index);
         }
 
         void ResetToStart() {
             cur_chunk_ = 0;
-            cur_chunk_row_ = 0
+            cur_chunk_row_ = 0;
         }
 
         void Advance() {
             if (cur_chunk_row_ == chunk_size_vector_[cur_chunk_]) {
                 cur_chunk_ ++;
                 cur_chunk_row_ = 0;
-                if (cur_chunk < num_chunks_) {
+                if (cur_chunk_ < num_chunks_) {
                     chunk_ptr_ = GetChunk(cur_chunk_);
                 } else {
                     chunk_ptr_ = nullptr;
@@ -162,53 +161,53 @@ namespace tidesurf
         
     };
 
-    class RecordTableStringColumnIterator : RecordTableColumnIterator<arrow::StringArray, std::string>
+    class RecordTableStringColumnIterator : public RecordTableColumnIterator<arrow::StringArray, std::string>
     {
     public:
         RecordTableStringColumnIterator(RecordTable table, int64_t column)
-            : RecordTableColumnIterator(table, column)
+            : RecordTableColumnIterator<arrow::StringArray, std::string>(table, column)
         {
         }
 
         std::string Next() {
-            DEBUG_ASSERT(HasNext(), "RecordTableIterator should call HasNext to check before calling Next()");
+            DEBUG_ASSERT(this->HasNext(), "RecordTableIterator should call HasNext to check before calling Next()");
             std::string entry = chunk_ptr_->GetString(cur_chunk_row_);
-            Advance();
+            this->Advance();
             return entry;
         }
     };
 
     template <class ColumnArrayType, class ColumnDataType>
-    class RecordTableValueColumnIterator : RecordTableColumnIterator<ColumnArrayType, ColumnDataType>
+    class RecordTableValueColumnIterator : public RecordTableColumnIterator<ColumnArrayType, ColumnDataType>
     {
     public:
         RecordTableValueColumnIterator(RecordTable table, int64_t column)
-            : RecordTableColumnIterator(table, column)
+            : RecordTableColumnIterator<ColumnArrayType, ColumnDataType>(table, column)
         {
         }
 
         ColumnDataType Next() {
-            DEBUG_ASSERT(HasNext(), "RecordTableIterator should call HasNext to check before calling Next()");
-            ColumnDataType entry = chunk_ptr_->Value(cur_chunk_row_);
-            Advance();
+            DEBUG_ASSERT(this->HasNext(), "RecordTableIterator should call HasNext to check before calling Next()");
+            ColumnDataType entry = this->chunk_ptr_->Value(this->cur_chunk_row_);
+            this->Advance();
             return entry;
         }
     };
 
-    class RecordTableInt64ColumnIterator : RecordTableValueColumnIterator<arrow::Int64Array, int64_t>
+    class RecordTableInt64ColumnIterator : public RecordTableValueColumnIterator<arrow::Int64Array, int64_t>
     {
     public:
         RecordTableInt64ColumnIterator(RecordTable table, int64_t column)
-            : RecordTableValueColumnIterator(table, column)
+            : RecordTableValueColumnIterator<arrow::Int64Array, int64_t>(table, column)
         {
         }
     };
 
-    class RecordTableDoubleColumnIterator : RecordTableValueColumnIterator<arrow::DoubleArray, double>
+    class RecordTableDoubleColumnIterator : public RecordTableValueColumnIterator<arrow::DoubleArray, double>
     {
     public:
         RecordTableDoubleColumnIterator(RecordTable table, int64_t column)
-            : RecordTableValueColumnIterator(table, column)
+            : RecordTableValueColumnIterator<arrow::DoubleArray, double>(table, column)
         {
         }
     };
