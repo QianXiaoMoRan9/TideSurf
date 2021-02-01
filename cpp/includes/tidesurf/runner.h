@@ -62,17 +62,16 @@ namespace tidesurf
     public:
         Runner(const char *config_json_path)
         {
-            config_ = InitConfiguration(config_json_path);
-            stock_map_ = InitStockMap(config_);
+            InitConfiguration(config_json_path);
+            InitStockMap(config_);
         }
 
-        TideSurfConfig InitConfiguration(const char *config_json_path) {
-            return *(new TideSurfConfig(config_json_path));
+        void InitConfiguration(const char *config_json_path) {
+            config_ = TideSurfConfig(config_json_path);
         }
 
         
         void InitDatReceiver() {
-            
         }
 
         /**
@@ -81,9 +80,18 @@ namespace tidesurf
          * @param config 
          * @return std::unordered_map<std::string, Stock> 
          */
-        std::unordered_map<std::string, Stock> InitStockMap(TideSurfConfig config)
+        void InitStockMap(TideSurfConfig config)
         {
-            
+            stock_map_ = std::unordered_map<std::string, Stock>();
+            std::string stock_list_path = config_.app_data_path_ + "/stock_list.parquet";
+            RecordTable stock_list_table = RecordTable(STOCK_LIST_PARQUET_TABLE_SCHEMA, stock_list_path);
+            RecordTableStringColumnIterator code_iterator = RecordTableStringColumnIterator(stock_list_table, 0);
+            RecordTableStringColumnIterator name_iterator = RecordTableStringColumnIterator(stock_list_table, 0);
+            RecordTableStringColumnIterator abbrev_iterator = RecordTableStringColumnIterator(stock_list_table, 0);
+            while(code_iterator.HasNext()) {
+                std::string code = code_iterator.Next();
+                stock_map_.emplace(code, Stock(code, name_iterator.Next(), abbrev_iterator.Next()));
+            }
         }
 
         void InitHistoryData();
