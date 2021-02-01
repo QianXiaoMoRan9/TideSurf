@@ -82,7 +82,6 @@ pkl:
 import json
 import pickle
 import os, sys
-sys.path.append("C:\\Users\\StevenLu\\Desktop\\TideSurf")
 from multiprocessing import Process
 import pandas as pd
 import datetime

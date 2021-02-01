@@ -1,9 +1,3 @@
-import pickle 
-import pandas as pd 
-import pyarrow as pa 
-import pyarrow.parquet as pq
-
-
 """
 Implement the sina post processing for a given date crawled data
 Deduplicate the data from the same date
@@ -91,63 +85,12 @@ import os, sys
 from multiprocessing import Process
 import pandas as pd
 import datetime
-
-FLOAT_ENTRIES = {
-    "ask1",
-    "ask2",
-    "ask3",
-    "ask4",
-    "ask5",
-    "bid1",
-    "bid2",
-    "bid3",
-    "bid4",
-    "bid5",
-    "buy",
-    "close",
-    "high",
-    "low",
-    "now",
-    "open",
-    "sell",
-    "volume"
-}
-
-def create_record_dict():
-    return {
-        "ask1": [],
-        "ask1_volume": [],
-        "ask2": [],
-        "ask2_volume": [],
-        "ask3": [],
-        "ask3_volume": [],
-        "ask4": [],
-        "ask4_volume": [],
-        "ask5": [],
-        "ask5_volume": [],
-        "bid1": [],
-        "bid1_volume": [],
-        "bid2": [],
-        "bid2_volume": [],
-        "bid3": [],
-        "bid3_volume": [],
-        "bid4": [],
-        "bid4_volume": [],
-        "bid5": [],
-        "bid5_volume": [],
-        "buy": [],
-        "close": [],
-        "high": [],
-        "low": [],
-        "now": [],
-        "open": [],
-        "sell": [],
-        "hour": [],
-        "minute": [],
-        "second": [],
-        "turnover": [],
-        "volume": [],
-    }
+import pyarrow as pa 
+import pyarrow.parquet as pq
+from data_source.postprocessing.schema import (
+    SINA_RECORD_FLOAT_ENTRIES,
+    create_sina_record_dict
+)
 
 def get_process_file_name(cur_date, process, part):
     return "{}_{}-{}.pkl".format(cur_date, process, part)
@@ -175,7 +118,7 @@ def add_record(record, cur_date, code, records_dict, prev_time_dict,
     if (prev_time_dict[code] == record["time"]):
         return 
     for key, value in record.items():
-        if key in FLOAT_ENTRIES:
+        if key in SINA_RECORD_FLOAT_ENTRIES:
             parsed_value = float(record[key])
             if (key == "volume"):
                 delta = parsed_value - prev_volume_dict[code]
@@ -220,7 +163,7 @@ def job(data_folder, destination_folder, cur_date, process):
     with open(part_0_name, "rb") as part_0_file:
         part_0_pickle = pickle.load(part_0_file)
         for code, record in part_0_pickle[0].items():
-            records_dict[code] = create_record_dict()
+            records_dict[code] = create_sina_record_dict()
             prev_time_dict[code] = "00:00:00"
             prev_turnover_dict[code] = 0
             prev_volume_dict[code] = 0.0

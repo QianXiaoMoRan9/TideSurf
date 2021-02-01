@@ -16,27 +16,17 @@ import json
 import pyarrow as pa  
 import pandas as pd 
 import pyarrow.parquet as pq 
-
-
-
-def create_record_dict():
-    return {
-        "code": [],
-        "name": [],
-        "abbreviation": []
-    }
-
+from data_source.postprocessing.schema import create_sina_stock_list_record_dict
 
 def load_stock_list_json_to_pandas_table(json_path):
     with open(json_path, "r") as file:
         json_object = json.load(file)
-        record_dict = create_record_dict()
+        record_dict = create_sina_stock_list_record_dict()
         for stock_object in json_object["stocks"]:
             record_dict["code"].append(stock_object[0])
             record_dict["name"].append(stock_object[1])
             record_dict["abbreviation"].append(stock_object[2])
         return pd.DataFrame.from_dict(record_dict)
-
 
 def save_stock_list_to_parquet(dataframe, output_path):
     table = pa.Table.from_pandas(dataframe)
