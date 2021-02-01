@@ -54,6 +54,7 @@ def create_sina_record_dict():
         "second": [],
         "turnover": [],
         "volume": [],
+        "code": []
 }
 
 def create_sina_stock_list_record_dict():

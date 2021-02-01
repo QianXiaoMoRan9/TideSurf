@@ -4,8 +4,16 @@ Deduplicate the data from the same date
 Store then into proper parquet file format
 
 Driver args:
-data_folder, destination_parent_folder, date
+data_folder <str>
+destination_folder <str> 
+date <yyyy-MM-dd>
+num_stocks_per_folder <int> optional
 
+Example:
+/home/steven/Desktop/Fast500/sina-raw
+/home/steven/Desktop/Fast500/astock_parquet
+2020-12-21
+50 
 
 Post process schema:
 
@@ -81,42 +89,55 @@ pkl:
 
 import json
 import pickle
-import os, sys
+import os
+import sys
 from multiprocessing import Process
 import pandas as pd
 import datetime
-import pyarrow as pa 
+import pyarrow as pa
 import pyarrow.parquet as pq
 from data_source.postprocessing.schema import (
     SINA_RECORD_FLOAT_ENTRIES,
     create_sina_record_dict
 )
 
+DEFAULT_NUM_STOCKS_PER_PARTITION = 50
+
+
 def get_process_file_name(cur_date, process, part):
     return "{}_{}-{}.pkl".format(cur_date, process, part)
+
 
 def get_destination_file_name(code):
     return "{}.parquet".format(code)
 
 
-def add_record(record, cur_date, code, records_dict, prev_time_dict,
-               prev_turnover_dict, prev_volume_dict):
+def add_record(
+        record,
+        cur_date,
+        code,
+        records_dict,
+        prev_time_dict,
+        prev_turnover_dict,
+        prev_volume_dict):
     # if this stock does not trade then add only one row with 0 on volume arguments
     if cur_date != record["date"]:
         if len(records_dict[code]["hour"]) == 1:
-            return 
+            return
         else:
             for key, lst in records_dict[code].items():
                 if key == "hour":
                     lst.append(9)
                 elif key == "minute":
                     lst.append(15)
+                elif key == "code":
+                    lst.append(code)
                 else:
                     lst.append(0)
-            return 
+            return
     # check if time overlaps, if not, update time
     if (prev_time_dict[code] == record["time"]):
-        return 
+        return
     for key, value in record.items():
         if key in SINA_RECORD_FLOAT_ENTRIES:
             parsed_value = float(record[key])
@@ -127,7 +148,7 @@ def add_record(record, cur_date, code, records_dict, prev_time_dict,
             records_dict[code][key].append(parsed_value)
         else:
             if (key == "date"):
-                continue 
+                continue
             elif (key == "name"):
                 continue
             elif (key == "time"):
@@ -139,76 +160,161 @@ def add_record(record, cur_date, code, records_dict, prev_time_dict,
             elif (key == "turnover"):
                 turnover = int(record[key])
                 delta = turnover - prev_turnover_dict[code]
-                records_dict[code][key].append(delta) 
+                records_dict[code][key].append(delta)
                 prev_turnover_dict[code] = turnover
             else:
                 records_dict[code][key].append(int(record[key]))
+    records_dict[code]["code"].append(code)
 
-def job(data_folder, destination_folder, cur_date, process):
+
+def dump_partition(
+        data_folder,
+        destination_folder,
+        cur_date, partition,
+        records_dict,
+        stock_partition_dict,
+        min_num_stock_in_partition):
+    """
+    pop min_num_stock_in_partition number of stocks, concatenate then into 
+    one single dictionary of records, dump them into one parquet partition
+
+    Returns:
+        The next partition number if current partition number is dumped
+    """
+    if len(records_dict) < min_num_stock_in_partition:
+        return partition
+
+    # concatenate records from different code into one
+    num_keys_concatenated = 0
+    result_record_dict = create_sina_record_dict()
+    for code, record_dict in record_dict.items():
+        for column, lst in record_dict.items():
+            result_record_dict[column] = result_record_dict[column] + \
+                records_dict[code][column]
+        # remove the processed stock from the records dict
+        # if reaches the number of stocks per partition, then terminate
+        del records_dict[code]
+        num_keys_concatenated += 1
+        if (num_keys_concatenated == min_num_stock_in_partition):
+            break
+
+    output_path = os.path.join(
+        destination_folder, cur_date, "{}.parquet".format(partition))
+    dataframe = pd.DataFrame.from_dict(result_record_dict)
+    table = pa.Table.from_pandas(dataframe)
+    pq.write_table(table, output_path)
+    return partition + 1
+
+
+def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition):
     """
     Args:
         data_folder (str): the folder where data is stored
-        destination_folder (str): folder with cur_date, example: /some_folder/2020-12-23
+        destination_folder (str): folder without date separation example: /some_folder
         cur_date (str): in form of yyyy-MM-dd
-        process (int): the process number
     """
+    # create destination folder with date as sub-folder
+    subfolder = os.path.join(destination_folder, cur_date)
+    if (not os.path.exists(subfolder)):
+        os.mkdir(subfolder)
+
+    source_data_folder = os.path.join(data_folder, cur_date, "data")
+    assert os.path.exists(source_data_folder), \
+        "Source data folder {} must exists".format(source_data_folder)
+
+    cur_process = 0
+    cur_partition = 0
+
     records_dict = dict()
     prev_time_dict = dict()
     prev_turnover_dict = dict()
     prev_volume_dict = dict()
+    stock_partition_dict = dict()
 
-    part_0_name = os.path.join(data_folder, get_process_file_name(cur_date, process, 0))
-    
-    # initialize the empty entries for each stock
-    with open(part_0_name, "rb") as part_0_file:
-        part_0_pickle = pickle.load(part_0_file)
-        for code, record in part_0_pickle[0].items():
-            records_dict[code] = create_sina_record_dict()
-            prev_time_dict[code] = "00:00:00"
-            prev_turnover_dict[code] = 0
-            prev_volume_dict[code] = 0.0
-    
-    cur_part = 0
-    while True:
+    # iterate through all processes, until process number no longer exists
+    # add records into the
+    while (True):
+        part_0_name = os.path.join(
+            source_data_folder, get_process_file_name(cur_date, cur_process, 0))
+        if (not os.path.exists(part_0_name)):
+            break
+
+        # initialize the empty entries for each stock
+        with open(part_0_name, "rb") as part_0_file:
+            part_0_pickle = pickle.load(part_0_file)
+            for code, record in part_0_pickle[0].items():
+                records_dict[code] = create_sina_record_dict()
+                prev_time_dict[code] = "00:00:00"
+                prev_turnover_dict[code] = 0
+                prev_volume_dict[code] = 0.0
+
+        cur_part = 0
+        # iterate through all the possible parts of records
+        # until there is no part that exists
         part_file_name = os.path.join(
-                data_folder, 
-                get_process_file_name(cur_date, process, cur_part)
+            source_data_folder,
+            get_process_file_name(cur_date, cur_process, cur_part)
         )
-        if not os.path.exists(part_file_name):
-            break 
-        with open(part_file_name, "rb") as part_file:
-            pickle_file = pickle.load(part_file)
-            for record_dict in pickle_file:
-                for code, record in record_dict.items():
-                    add_record(
-                        record, 
-                        cur_date, 
-                        code, 
-                        records_dict, 
-                        prev_time_dict, 
-                        prev_turnover_dict, 
-                        prev_volume_dict
-                    )
-        cur_part += 1
-        print(cur_part)
+        while os.path.exists(part_file_name):
+            with open(part_file_name, "rb") as part_file:
+                pickle_file = pickle.load(part_file)
+                for record_dict in pickle_file:
+                    for code, record in record_dict.items():
+                        add_record(
+                            record,
+                            cur_date,
+                            code,
+                            records_dict,
+                            prev_time_dict,
+                            prev_turnover_dict,
+                            prev_volume_dict
+                        )
+            cur_part += 1
+            part_file_name = os.path.join(
+                source_data_folder,
+                get_process_file_name(cur_date, cur_process, cur_part)
+            )
+        # after getting all the records in the current process
+        # dump the partitions into parquet files
+        if (len(records_dict) >= min_num_stocks_per_partition):
 
-    for code, record_dict in records_dict.items():
-        output_path = os.path.join(destination_folder, get_destination_file_name(code))
-        dataframe = pd.DataFrame.from_dict(record_dict)
-        table = pa.Table.from_pandas(dataframe)
-        pq.write_table(table, output_path)
+            next_partition = dump_partition(
+                source_data_folder,
+                destination_folder,
+                cur_date,
+                cur_partition,
+                records_dict,
+                stock_partition_dict,
+                min_num_stocks_per_partition)
+            while(next_partition != cur_partition):
+                cur_partition = next_partition
+                next_partition = dump_partition(
+                    source_data_folder,
+                    destination_folder,
+                    cur_date,
+                    cur_partition,
+                    records_dict,
+                    stock_partition_dict,
+                    min_num_stocks_per_partition)
+    # dump the remaining records into a single partition
+    next_partition = dump_partition(
+        source_data_folder,
+        destination_folder,
+        cur_date,
+        cur_partition,
+        records_dict,
+        stock_partition_dict,
+        0)
+
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 4, "There must be 4 arguments"
-    [
-        data_folder,
-        destination_parent_folder,
-        cur_date
-    ] = sys.argv[1:]
+    assert len(sys.argv) >= 4, "There must be at least 3 arguments"
+    data_folder = sys.argv[1]
+    destination_folder = sys.argv[2]
+    cur_date = sys.argv[3]
+    min_num_stocks_per_partition = DEFAULT_NUM_STOCKS_PER_PARTITION
+    if len(sys.argv) > 4:
+        min_num_stocks_per_partition = int(sys.argv[4])
 
-    process = 0 
-    destination_folder = os.path.join(destination_parent_folder, cur_date)
-    if (not os.path.exists(destination_folder)):
-        os.mkdir(destination_folder)
-    job(data_folder, destination_folder, cur_date, process)
+    job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
     print("done")
