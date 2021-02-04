@@ -101,7 +101,7 @@ from data_source.postprocessing.schema import (
     ASCII_TO_LATIN_CHAR_DICT,
     create_sina_record_dict
 )
-
+from pprint import pprint
 from data_source.stock.easy_quotation_sina_real import add_stock_prefix
 
 DEFAULT_NUM_STOCKS_PER_PARTITION = 50
@@ -114,16 +114,49 @@ def get_process_file_name(cur_date, process, part):
 def get_destination_file_name(code):
     return "{}.parquet".format(code)
 
+LENGTH_MAP = dict()
+DUP_NAME_MAP = {
+    "002755": add_stock_prefix("002755"),
+    "300361": add_stock_prefix("300361"),
+    "600631": add_stock_prefix("600631"),
+    "600827": add_stock_prefix("600827"),
+    "600832": add_stock_prefix("600832"),
+    "600637": add_stock_prefix("600637")
+}
+
+STOCK_NAME_DIFF_DICT = {
+        '星徽精密': "星徽股份",
+        "启迪古汉": "启迪药业",
+        "B股指数": "Ｂ股指数",
+        "50AH优选": "50AH优选",
+        "A股资源": "A股资源"
+    }
 
 def add_record(
         record,
+        original_code,
         cur_date,
         records_dict,
         prev_time_dict,
         prev_turnover_dict,
         prev_volume_dict,
-        name_to_code_dict):
-    code = name_to_code_dict[record["name"]]
+        name_to_code_dict,
+        sina_code_to_name_dict):
+    
+    if original_code in DUP_NAME_MAP:
+        code = DUP_NAME_MAP[original_code]
+    elif original_code.startswith(('60', '30', '00')):
+        if (record["name"].startswith(('N', 'C'))):
+            code = add_stock_prefix(original_code)
+        else:
+            assert record["name"] in name_to_code_dict, "{}, {}".format(original_code, record["name"])
+            code = name_to_code_dict[record["name"]]
+    else:
+        code = add_stock_prefix(original_code)
+
+    if code not in sina_code_to_name_dict:
+        sina_code_to_name_dict[code] = record["name"]
+
     # if records_dict does not have current code then initialize it
     if code not in records_dict:
         records_dict[code] = create_sina_record_dict()
@@ -178,6 +211,11 @@ def add_record(
     records_dict[code]["code"].append(code)
 
 
+def save_record_dict_to_parquet(result_record_dict, output_path):
+    dataframe = pd.DataFrame.from_dict(result_record_dict)
+    table = pa.Table.from_pandas(dataframe)
+    pq.write_table(table, output_path)
+
 def dump_partition(
         data_folder,
         destination_folder,
@@ -211,31 +249,23 @@ def dump_partition(
         if (num_keys_concatenated == min_num_stock_in_partition):
             break
     for code in pop_key_list:
-        assert code not in stock_partition_dict, "Code {} should not be in partition {} as it has already in partition {}".format(partition, stock_partition_dict[code])
+        if code not in LENGTH_MAP:
+            LENGTH_MAP[code] = set()
+        LENGTH_MAP[code].add(len(records_dict[code]["volume"]))
+        assert code not in stock_partition_dict, "Code {} should not be in partition {} as it has already in partition {} {} {}".format(code, partition, stock_partition_dict[code], MAP[code], LENGTH_MAP[code])
         stock_partition_dict[code] = partition
         records_dict.pop(code)
 
     output_path = os.path.join(
         destination_folder, cur_date, "{}.parquet".format(partition))
-    dataframe = pd.DataFrame.from_dict(result_record_dict)
-    table = pa.Table.from_pandas(dataframe)
-    pq.write_table(table, output_path)
+    save_record_dict_to_parquet(result_record_dict, output_path)
     return partition + 1
 
-def replace_ascii_to_latin(string):
-    d = {
-        "启迪古汉": "启迪药业"
-    }
-    # res = []
-    # for c in string:
-    #     if c in ASCII_TO_LATIN_CHAR_DICT:
-    #         res.append(ASCII_TO_LATIN_CHAR_DICT[c])
-    #     else:
-    #         res.append(c)
+def convert_aicai_name_to_sina_name(string):
+    string = string.split('.')[0]
 
-    # return ''.join(res)
-    if (string in d):
-        return d[string]
+    if (string in STOCK_NAME_DIFF_DICT):
+        return STOCK_NAME_DIFF_DICT[string]
     
     return string.replace("A", "Ａ")
 
@@ -244,9 +274,8 @@ def construct_name_to_code_dict(source_data_folder, cur_date, name_to_code_dict)
     with open(json_path, "r") as json_f:
         stock_list = json.load(json_f)
         for stock_elem in stock_list["stocks"]:
-            name_to_code_dict[replace_ascii_to_latin(stock_elem[1])] = add_stock_prefix(stock_elem[0])
+            name_to_code_dict[convert_aicai_name_to_sina_name(stock_elem[1])] = add_stock_prefix(stock_elem[0])
             name_to_code_dict[stock_elem[1]] = add_stock_prefix(stock_elem[0])
-    print(name_to_code_dict)
 
 def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition):
     """
@@ -274,6 +303,8 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
     stock_partition_dict = dict()
     name_to_code_dict = dict()
 
+    sina_code_to_name_dict = dict()
+
     construct_name_to_code_dict(source_data_folder, cur_date, name_to_code_dict)
 
     # iterate through all processes, until process number no longer exists
@@ -299,12 +330,14 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
                     for code, record in record_dict.items():
                         add_record(
                             record,
+                            code,
                             cur_date,
                             records_dict,
                             prev_time_dict,
                             prev_turnover_dict,
                             prev_volume_dict,
-                            name_to_code_dict
+                            name_to_code_dict,
+                            sina_code_to_name_dict
                         )
             cur_part += 1
             part_file_name = os.path.join(
@@ -350,6 +383,18 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
         destination_folder, cur_date, "code_to_partition_map.json")
     with open(code_to_partition_json_path, "w") as json_f:
         json.dump(stock_partition_dict, json_f)
+    
+    # dump the sina coe to stock parquet
+    sina_convert_dict = {
+        "code": [],
+        "name": []
+    }
+    for sina_code, name in sina_code_to_name_dict.items():
+        sina_convert_dict["code"].append(sina_code)
+        sina_convert_dict["name"].append(name)
+    stock_list_path = os.path.join(
+        destination_folder, cur_date, "stock_list.parquet")
+    save_record_dict_to_parquet(sina_convert_dict, stock_list_path)
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@ import easyquotation as eq
 import multiprocessing
 from multiprocessing import Process, Queue
 import sys 
-from get_stock_codes import StockCodeSHDJT
+from data_source.stock.get_stock_codes import StockCodeSHDJT
 import json 
 import math 
 import logging 

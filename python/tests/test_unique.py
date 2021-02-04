@@ -4,9 +4,9 @@ import os
 
 from data_source.postprocessing.pickle_to_parquet import get_process_file_name
 
-SOURCE_DATA_FOLDER = "/home/steven/Desktop/Fast500/sina-raw/2020-12-21/data"
-DESTINATION_FOLDER = "/home/steven/Desktop/Fast500/astock_parquet/2020-12-21"
-CUR_DATE = "2020-12-21"
+CUR_DATE = "2020-12-22"
+SOURCE_DATA_FOLDER = "/home/steven/Desktop/Fast500/sina-raw/{}/data".format(CUR_DATE)
+
 
 expect_records_dict = dict()
 
@@ -21,9 +21,10 @@ for cur_process in range(16):
             pickle_file = pickle.load(part_file)
             for record_dict in pickle_file:
                 for code, record in record_dict.items():
-                    if code not in expect_records_dict:
-                        expect_records_dict[code] = set()
-                    expect_records_dict[code].add((cur_process, record["name"]))
+                    name = record["name"]
+                    if name not in expect_records_dict:
+                        expect_records_dict[name] = set()
+                    expect_records_dict[name].add((cur_process, code))
         cur_part += 1
         part_file_name = os.path.join(
             SOURCE_DATA_FOLDER,

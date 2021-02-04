@@ -93,3 +93,17 @@ for code, count in expect_records_dict.items():
     assert expect_records_dict[code] == actual_records_dict[code], \
         "Number of record for each stock matches, exception: {} expected: {}, actual: {}".format(
             code, expect_records_dict[code], actual_records_dict[code])
+
+"""
+Check the stock list to ensure:
+1. records are unique
+2. number of records is the same as the original stock list
+"""
+dataframstock_list_frame = pq.read_table(os.path.join(DESTINATION_FOLDER, "stock_list.parquet")).to_pandas()
+stock_set = set() 
+with open(os.path.join(SOURCE_DATA_FOLDER, "stock_list_{}.json",format(CUR_DATE))) as json_f:
+    stock_list = json.load(json_f)["stocks"]
+for index, row in dataframstock_list_frame.iterrows():
+    stock_set.add(row["code"])
+
+assert len(stock_set) == len(stock_list), "Should have the same number of unique stocks, missing : {}".format(len())
