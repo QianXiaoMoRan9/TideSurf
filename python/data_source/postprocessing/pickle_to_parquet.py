@@ -98,8 +98,11 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from data_source.postprocessing.schema import (
     SINA_RECORD_FLOAT_ENTRIES,
+    ASCII_TO_LATIN_CHAR_DICT,
     create_sina_record_dict
 )
+
+from data_source.stock.easy_quotation_sina_real import add_stock_prefix
 
 DEFAULT_NUM_STOCKS_PER_PARTITION = 50
 
@@ -115,11 +118,19 @@ def get_destination_file_name(code):
 def add_record(
         record,
         cur_date,
-        code,
         records_dict,
         prev_time_dict,
         prev_turnover_dict,
-        prev_volume_dict):
+        prev_volume_dict,
+        name_to_code_dict):
+    code = name_to_code_dict[record["name"]]
+    # if records_dict does not have current code then initialize it
+    if code not in records_dict:
+        records_dict[code] = create_sina_record_dict()
+        prev_time_dict[code] = "00:00:00"
+        prev_turnover_dict[code] = 0
+        prev_volume_dict[code] = 0.0
+
     # if this stock does not trade then add only one row with 0 on volume arguments
     if cur_date != record["date"]:
         if len(records_dict[code]["hour"]) == 1:
@@ -187,17 +198,22 @@ def dump_partition(
     # concatenate records from different code into one
     num_keys_concatenated = 0
     result_record_dict = create_sina_record_dict()
-    for code, record_dict in record_dict.items():
+    pop_key_list = []
+    for code, record_dict in records_dict.items():
         for column, lst in record_dict.items():
             result_record_dict[column] = result_record_dict[column] + \
                 records_dict[code][column]
         # remove the processed stock from the records dict
         # if reaches the number of stocks per partition, then terminate
-        del records_dict[code]
-        stock_partition_dict[code] = partition
+        pop_key_list.append(code)
+        
         num_keys_concatenated += 1
         if (num_keys_concatenated == min_num_stock_in_partition):
             break
+    for code in pop_key_list:
+        assert code not in stock_partition_dict, "Code {} should not be in partition {} as it has already in partition {}".format(partition, stock_partition_dict[code])
+        stock_partition_dict[code] = partition
+        records_dict.pop(code)
 
     output_path = os.path.join(
         destination_folder, cur_date, "{}.parquet".format(partition))
@@ -206,6 +222,31 @@ def dump_partition(
     pq.write_table(table, output_path)
     return partition + 1
 
+def replace_ascii_to_latin(string):
+    d = {
+        "启迪古汉": "启迪药业"
+    }
+    # res = []
+    # for c in string:
+    #     if c in ASCII_TO_LATIN_CHAR_DICT:
+    #         res.append(ASCII_TO_LATIN_CHAR_DICT[c])
+    #     else:
+    #         res.append(c)
+
+    # return ''.join(res)
+    if (string in d):
+        return d[string]
+    
+    return string.replace("A", "Ａ")
+
+def construct_name_to_code_dict(source_data_folder, cur_date, name_to_code_dict):
+    json_path = os.path.join(source_data_folder, "stock_list_{}.json".format(cur_date))
+    with open(json_path, "r") as json_f:
+        stock_list = json.load(json_f)
+        for stock_elem in stock_list["stocks"]:
+            name_to_code_dict[replace_ascii_to_latin(stock_elem[1])] = add_stock_prefix(stock_elem[0])
+            name_to_code_dict[stock_elem[1]] = add_stock_prefix(stock_elem[0])
+    print(name_to_code_dict)
 
 def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition):
     """
@@ -231,6 +272,9 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
     prev_turnover_dict = dict()
     prev_volume_dict = dict()
     stock_partition_dict = dict()
+    name_to_code_dict = dict()
+
+    construct_name_to_code_dict(source_data_folder, cur_date, name_to_code_dict)
 
     # iterate through all processes, until process number no longer exists
     # add records into the
@@ -239,15 +283,7 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
             source_data_folder, get_process_file_name(cur_date, cur_process, 0))
         if (not os.path.exists(part_0_name)):
             break
-
-        # initialize the empty entries for each stock
-        with open(part_0_name, "rb") as part_0_file:
-            part_0_pickle = pickle.load(part_0_file)
-            for code, record in part_0_pickle[0].items():
-                records_dict[code] = create_sina_record_dict()
-                prev_time_dict[code] = "00:00:00"
-                prev_turnover_dict[code] = 0
-                prev_volume_dict[code] = 0.0
+        print("Start processing cur process: {}".format(cur_process))
 
         cur_part = 0
         # iterate through all the possible parts of records
@@ -264,11 +300,11 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
                         add_record(
                             record,
                             cur_date,
-                            code,
                             records_dict,
                             prev_time_dict,
                             prev_turnover_dict,
-                            prev_volume_dict
+                            prev_volume_dict,
+                            name_to_code_dict
                         )
             cur_part += 1
             part_file_name = os.path.join(
@@ -297,6 +333,8 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
                     records_dict,
                     stock_partition_dict,
                     min_num_stocks_per_partition)
+        print("Finished processing cur process: {}".format(cur_process))
+        cur_process += 1
     # dump the remaining records into a single partition
     next_partition = dump_partition(
         source_data_folder,

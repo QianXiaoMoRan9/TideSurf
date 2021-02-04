@@ -23,6 +23,7 @@
 ```
 .
 +-- 2020-12-21
+|   +-- stock_list.parquet
 |   +-- code_to_partition_map.json
 |   +-- 001.parquet
 |   +-- 002.parquet
@@ -49,8 +50,8 @@
 ## App data folder structure
 ```
 .
-+-- stock_list.parquet
 +-- astock
+|   +-- stock_list.parquet
 |   +-- stock_selection
 |      +-- watch_list.json
 |      +-- group_1.json

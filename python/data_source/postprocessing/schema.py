@@ -1,3 +1,8 @@
+LATIN_CHAR_START = 65281
+ASCII_CHAR_START = 33
+# 'Ａ' -> 'A'
+ASCII_TO_LATIN_CHAR_DICT = {chr(ASCII_CHAR_START + x) : chr(LATIN_CHAR_START + x) for x in range(94)}
+
 SINA_RECORD_FLOAT_ENTRIES = {
     "ask1",
     "ask2",
@@ -18,6 +23,8 @@ SINA_RECORD_FLOAT_ENTRIES = {
     "sell",
     "volume"
 }
+
+
 
 
 def create_sina_record_dict():
@@ -63,3 +70,5 @@ def create_sina_stock_list_record_dict():
         "name": [],
         "abbreviation": []
     }
+
+

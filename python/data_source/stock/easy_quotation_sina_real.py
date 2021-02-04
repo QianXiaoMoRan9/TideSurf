@@ -19,7 +19,7 @@ import easyquotation as eq
 import multiprocessing
 from multiprocessing import Process, Queue
 import sys 
-from tidesurf.data_source.stock.get_stock_codes import StockCodeSHDJT
+from data_source.stock.get_stock_codes import StockCodeSHDJT
 import json 
 import math 
 import logging 
@@ -34,6 +34,8 @@ import pickle
 def format_number(n):
     return str(n) if n >= 10 else "0" + str(n)
 
+SH_HEAD = ("50", "51", "60", "90", "110", "113",
+            "132", "204", "5", "6", "9", "7")
 
 def get_stock_type(stock_code):
     """判断股票ID对应的证券市场
@@ -44,12 +46,14 @@ def get_stock_type(stock_code):
     :param stock_code:股票ID, 若以 'sz', 'sh' 开头直接返回对应类型，否则使用内置规则判断
     :return 'sh' or 'sz'"""
     assert type(stock_code) is str, "stock code need str type"
-    sh_head = ("50", "51", "60", "90", "110", "113",
-            "132", "204", "5", "6", "9", "7")
+    
     if stock_code.startswith(("sh", "sz", "zz")):
         return stock_code[:2]
     else:
-        return "sh" if stock_code.startswith(sh_head) else "sz"
+        return "sh" if stock_code.startswith(SH_HEAD) else "sz"
+
+def add_stock_prefix(stock_code):
+    return get_stock_type(stock_code) + stock_code[-6:]
 
 def is_in_trade_hour():
     """
@@ -199,7 +203,7 @@ def job(index, stock_list, date, path, queue):
     while (True):
         if is_in_trade_hour():
             try:
-                res = getter.get_stock_data()
+                res = getter.get_stock_data(prefix=True)
                 cur_buf_list.append(res)
                 cur += 1
                 if (cur == 300):
