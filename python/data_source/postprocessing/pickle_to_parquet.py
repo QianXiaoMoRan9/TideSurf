@@ -102,7 +102,11 @@ from data_source.postprocessing.schema import (
     create_sina_record_dict
 )
 from pprint import pprint
-from data_source.stock.easy_quotation_sina_real import add_stock_prefix
+from data_source.postprocessing.utils import (
+    save_record_dict_to_parquet
+)
+
+from data_source.postprocessing.utils import add_stock_prefix
 from data_source.postprocessing.aicai_conversion import (
     SinaCodePrefixAdder
 )
@@ -116,17 +120,8 @@ def get_process_file_name(cur_date, process, part):
 
 def get_destination_file_name(code):
     return "{}.parquet".format(code)
-LENGTH_MAP = dict()
-DUP_NAME_MAP = {
-    "002755": add_stock_prefix("002755"),
-    "300361": add_stock_prefix("300361"),
-    "600631": add_stock_prefix("600631"),
-    "600827": add_stock_prefix("600827"),
-    "600832": add_stock_prefix("600832"),
-    "600637": add_stock_prefix("600637"),
-    "002797": add_stock_prefix("002797"),
 
-}
+LENGTH_MAP = dict()
 
 def add_record(
         record,
@@ -197,10 +192,7 @@ def add_record(
     records_dict[code]["code"].append(code)
 
 
-def save_record_dict_to_parquet(result_record_dict, output_path):
-    dataframe = pd.DataFrame.from_dict(result_record_dict)
-    table = pa.Table.from_pandas(dataframe)
-    pq.write_table(table, output_path)
+
 
 def dump_partition(
         data_folder,

@@ -10,6 +10,9 @@ A_STOCK_PREFIX = {
     'sz30'
 }
 
+SH_HEAD = ("50", "51", "60", "90", "110", "113",
+            "132", "204", "5", "6", "9", "7")
+
 SINA_RECORD_FLOAT_ENTRIES = {
     "ask1",
     "ask2",
