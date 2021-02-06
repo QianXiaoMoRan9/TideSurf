@@ -112,7 +112,7 @@ def raw_code_to_astock_code(record):
     Returns:
         proper A stock code with prefix
     """
-    return add_stock_prefix(code)
+    return add_stock_prefix(record["raw_code"])
 
 
 def save_records_to_parquet(record_list, output_path):
@@ -134,15 +134,15 @@ def save_records_to_parquet(record_list, output_path):
     }
     for record in record_list:
         for key, value in record.items():
-            if (key == "code"):
+            if (key == "raw_code"):
                 records_dict["code"].append(raw_code_to_astock_code(record))
             elif (key == "split_date"):
                 date = parse_iso_date(record["split_date"])
-                records_dict["year"] = date.year
-                records_dict["month"] = date.month
-                records_dict["day"] = date.day
+                records_dict["year"].append(date.year)
+                records_dict["month"].append(date.month)
+                records_dict["day"].append(date.day)
             else:
-                records_dict[key] = value 
+                records_dict[key].append(value) 
     save_record_dict_to_parquet(records_dict, output_path)
 
 if __name__ == "__main__":

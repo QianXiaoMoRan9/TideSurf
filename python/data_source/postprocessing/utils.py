@@ -29,3 +29,6 @@ def save_record_dict_to_parquet(result_record_dict, output_path):
     dataframe = pd.DataFrame.from_dict(result_record_dict)
     table = pa.Table.from_pandas(dataframe)
     pq.write_table(table, output_path)
+
+def load_parquet_to_dataframe(path):
+    return pq.read_table(path).to_pandas()
