@@ -24,6 +24,7 @@
 .
 +-- 2020-12-21
 |   +-- stock_list.parquet
+|   +-- split_share.parquet
 |   +-- code_to_partition_map.json
 |   +-- 001.parquet
 |   +-- 002.parquet

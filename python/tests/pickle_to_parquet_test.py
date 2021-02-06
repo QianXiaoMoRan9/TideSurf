@@ -5,11 +5,12 @@ import os, sys
 import pyarrow as pa
 import pyarrow.parquet as pq
 from data_source.postprocessing.pickle_to_parquet import get_process_file_name
-from data_source.stock.easy_quotation_sina_real import add_stock_prefix
+from data_source.postprocessing.aicai_conversion import SinaCodePrefixAdder
+from data_source.postprocessing.utils import add_stock_prefix
 CUR_DATE = "2020-12-22"
 SOURCE_DATA_FOLDER = "/home/steven/Desktop/Fast500/sina-raw/{}/data".format(CUR_DATE)
 DESTINATION_FOLDER = "/home/steven/Desktop/Fast500/astock_parquet/{}".format(CUR_DATE)
-
+adder = SinaCodePrefixAdder("/home/steven/Desktop/Fast500/sina-raw/", CUR_DATE)
 
 print("Start testing")
 
@@ -19,6 +20,7 @@ print(""" Load the pickle files """)
 expect_records_dict = dict()
 "code ->previous time stamp"
 expect_prev_time_dict = dict()
+
 
 for cur_process in range(16):
     cur_part = 0
@@ -31,7 +33,7 @@ for cur_process in range(16):
             pickle_file = pickle.load(part_file)
             for record_dict in pickle_file:
                 for raw_code, record in record_dict.items():
-                    code = add_stock_prefix(raw_code)
+                    code = adder.convert_code(record, raw_code)
                     if code not in expect_records_dict:
                         expect_records_dict[code] = 0
                         expect_prev_time_dict[code] = "0:0:0"

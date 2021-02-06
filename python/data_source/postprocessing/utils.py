@@ -4,6 +4,8 @@ import pyarrow as pa
 
 from data_source.postprocessing.schema import SH_HEAD
 
+def has_prefix(stock_code):
+    return ord('a') <= ord(stock_code[0]) <= ord('z')
 
 def get_stock_type(stock_code):
     """判断股票ID对应的证券市场

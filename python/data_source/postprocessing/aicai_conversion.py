@@ -9,7 +9,7 @@ first process the stock_list into:
 """
 
 import json 
-from data_source.stock.easy_quotation_sina_real import add_stock_prefix, get_stock_type
+from data_source.postprocessing.utils import add_stock_prefix, get_stock_type
 
 class SinaCodePrefixAdder(object):
     STOCK_NAME_DIFF_DICT = {
