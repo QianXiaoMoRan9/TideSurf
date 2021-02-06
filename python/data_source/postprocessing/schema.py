@@ -3,6 +3,13 @@ ASCII_CHAR_START = 33
 # 'Ａ' -> 'A'
 ASCII_TO_LATIN_CHAR_DICT = {chr(ASCII_CHAR_START + x) : chr(LATIN_CHAR_START + x) for x in range(94)}
 
+A_STOCK_PREFIX = {
+    'sh60',
+    'sh688',
+    'sz00',
+    'sz30'
+}
+
 SINA_RECORD_FLOAT_ENTRIES = {
     "ask1",
     "ask2",

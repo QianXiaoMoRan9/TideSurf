@@ -103,6 +103,9 @@ from data_source.postprocessing.schema import (
 )
 from pprint import pprint
 from data_source.stock.easy_quotation_sina_real import add_stock_prefix
+from data_source.postprocessing.aicai_conversion import (
+    SinaCodePrefixAdder
+)
 
 DEFAULT_NUM_STOCKS_PER_PARTITION = 50
 
@@ -113,7 +116,6 @@ def get_process_file_name(cur_date, process, part):
 
 def get_destination_file_name(code):
     return "{}.parquet".format(code)
-
 LENGTH_MAP = dict()
 DUP_NAME_MAP = {
     "002755": add_stock_prefix("002755"),
@@ -121,16 +123,10 @@ DUP_NAME_MAP = {
     "600631": add_stock_prefix("600631"),
     "600827": add_stock_prefix("600827"),
     "600832": add_stock_prefix("600832"),
-    "600637": add_stock_prefix("600637")
-}
+    "600637": add_stock_prefix("600637"),
+    "002797": add_stock_prefix("002797"),
 
-STOCK_NAME_DIFF_DICT = {
-        '星徽精密': "星徽股份",
-        "启迪古汉": "启迪药业",
-        "B股指数": "Ｂ股指数",
-        "50AH优选": "50AH优选",
-        "A股资源": "A股资源"
-    }
+}
 
 def add_record(
         record,
@@ -140,20 +136,9 @@ def add_record(
         prev_time_dict,
         prev_turnover_dict,
         prev_volume_dict,
-        name_to_code_dict,
+        sina_code_prefix_adder,
         sina_code_to_name_dict):
-    
-    if original_code in DUP_NAME_MAP:
-        code = DUP_NAME_MAP[original_code]
-    elif original_code.startswith(('60', '30', '00')):
-        if (record["name"].startswith(('N', 'C'))):
-            code = add_stock_prefix(original_code)
-        else:
-            assert record["name"] in name_to_code_dict, "{}, {}".format(original_code, record["name"])
-            code = name_to_code_dict[record["name"]]
-    else:
-        code = add_stock_prefix(original_code)
-
+    code = sina_code_prefix_adder.convert_code(record, original_code)
     if code not in sina_code_to_name_dict:
         sina_code_to_name_dict[code] = record["name"]
 
@@ -182,6 +167,7 @@ def add_record(
     # check if time overlaps, if not, update time
     if (prev_time_dict[code] == record["time"]):
         return
+
     for key, value in record.items():
         if key in SINA_RECORD_FLOAT_ENTRIES:
             parsed_value = float(record[key])
@@ -239,8 +225,7 @@ def dump_partition(
     pop_key_list = []
     for code, record_dict in records_dict.items():
         for column, lst in record_dict.items():
-            result_record_dict[column] = result_record_dict[column] + \
-                records_dict[code][column]
+            result_record_dict[column] = result_record_dict[column] + lst
         # remove the processed stock from the records dict
         # if reaches the number of stocks per partition, then terminate
         pop_key_list.append(code)
@@ -252,7 +237,7 @@ def dump_partition(
         if code not in LENGTH_MAP:
             LENGTH_MAP[code] = set()
         LENGTH_MAP[code].add(len(records_dict[code]["volume"]))
-        assert code not in stock_partition_dict, "Code {} should not be in partition {} as it has already in partition {} {} {}".format(code, partition, stock_partition_dict[code], MAP[code], LENGTH_MAP[code])
+        assert code not in stock_partition_dict, "Code {} should not be in partition {} as it has already in partition {} {}".format(code, partition, stock_partition_dict[code], LENGTH_MAP[code])
         stock_partition_dict[code] = partition
         records_dict.pop(code)
 
@@ -260,22 +245,6 @@ def dump_partition(
         destination_folder, cur_date, "{}.parquet".format(partition))
     save_record_dict_to_parquet(result_record_dict, output_path)
     return partition + 1
-
-def convert_aicai_name_to_sina_name(string):
-    string = string.split('.')[0]
-
-    if (string in STOCK_NAME_DIFF_DICT):
-        return STOCK_NAME_DIFF_DICT[string]
-    
-    return string.replace("A", "Ａ")
-
-def construct_name_to_code_dict(source_data_folder, cur_date, name_to_code_dict):
-    json_path = os.path.join(source_data_folder, "stock_list_{}.json".format(cur_date))
-    with open(json_path, "r") as json_f:
-        stock_list = json.load(json_f)
-        for stock_elem in stock_list["stocks"]:
-            name_to_code_dict[convert_aicai_name_to_sina_name(stock_elem[1])] = add_stock_prefix(stock_elem[0])
-            name_to_code_dict[stock_elem[1]] = add_stock_prefix(stock_elem[0])
 
 def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition):
     """
@@ -301,21 +270,13 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
     prev_turnover_dict = dict()
     prev_volume_dict = dict()
     stock_partition_dict = dict()
-    name_to_code_dict = dict()
-
     sina_code_to_name_dict = dict()
 
-    construct_name_to_code_dict(source_data_folder, cur_date, name_to_code_dict)
+    sina_code_prefix_adder = SinaCodePrefixAdder(data_folder, cur_date)
 
     # iterate through all processes, until process number no longer exists
     # add records into the
     while (True):
-        part_0_name = os.path.join(
-            source_data_folder, get_process_file_name(cur_date, cur_process, 0))
-        if (not os.path.exists(part_0_name)):
-            break
-        print("Start processing cur process: {}".format(cur_process))
-
         cur_part = 0
         # iterate through all the possible parts of records
         # until there is no part that exists
@@ -323,6 +284,11 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
             source_data_folder,
             get_process_file_name(cur_date, cur_process, cur_part)
         )
+        if not os.path.exists(part_file_name):
+            break
+        
+        print("Start processing cur process: {}".format(cur_process))
+
         while os.path.exists(part_file_name):
             with open(part_file_name, "rb") as part_file:
                 pickle_file = pickle.load(part_file)
@@ -336,7 +302,7 @@ def job(data_folder, destination_folder, cur_date, min_num_stocks_per_partition)
                             prev_time_dict,
                             prev_turnover_dict,
                             prev_volume_dict,
-                            name_to_code_dict,
+                            sina_code_prefix_adder,
                             sina_code_to_name_dict
                         )
             cur_part += 1

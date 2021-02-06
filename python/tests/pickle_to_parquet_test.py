@@ -1,14 +1,15 @@
 
 import pickle
 import json
-import os
+import os, sys
 import pyarrow as pa
 import pyarrow.parquet as pq
 from data_source.postprocessing.pickle_to_parquet import get_process_file_name
+from data_source.stock.easy_quotation_sina_real import add_stock_prefix
+CUR_DATE = "2020-12-22"
+SOURCE_DATA_FOLDER = "/home/steven/Desktop/Fast500/sina-raw/{}/data".format(CUR_DATE)
+DESTINATION_FOLDER = "/home/steven/Desktop/Fast500/astock_parquet/{}".format(CUR_DATE)
 
-SOURCE_DATA_FOLDER = "/home/steven/Desktop/Fast500/sina-raw/2020-12-21/data"
-DESTINATION_FOLDER = "/home/steven/Desktop/Fast500/astock_parquet/2020-12-21"
-CUR_DATE = "2020-12-21"
 
 print("Start testing")
 
@@ -29,7 +30,8 @@ for cur_process in range(16):
         with open(part_file_name, "rb") as part_file:
             pickle_file = pickle.load(part_file)
             for record_dict in pickle_file:
-                for code, record in record_dict.items():
+                for raw_code, record in record_dict.items():
+                    code = add_stock_prefix(raw_code)
                     if code not in expect_records_dict:
                         expect_records_dict[code] = 0
                         expect_prev_time_dict[code] = "0:0:0"
@@ -86,8 +88,10 @@ while os.path.exists(partition_path):
                 code, expect_code_to_partition_dict[code], cur_partition)
 
     cur_partition += 1
-assert len(actual_records_dict) == len(
-    expect_records_dict), "Number of stocks in the record should match expected: {}, actual: {}".format(len(expect_records_dict), len(actual_records_dict))
+    partition_path = os.path.join(
+        DESTINATION_FOLDER, "{}.parquet".format(cur_partition))
+# assert len(actual_records_dict) == len(
+#     expect_records_dict), "Number of stocks in the record should match expected: {}, actual: {}".format(len(expect_records_dict), len(actual_records_dict))
 
 for code, count in expect_records_dict.items():
     assert expect_records_dict[code] == actual_records_dict[code], \
@@ -101,9 +105,20 @@ Check the stock list to ensure:
 """
 dataframstock_list_frame = pq.read_table(os.path.join(DESTINATION_FOLDER, "stock_list.parquet")).to_pandas()
 stock_set = set() 
-with open(os.path.join(SOURCE_DATA_FOLDER, "stock_list_{}.json",format(CUR_DATE))) as json_f:
+stock_list = None
+with open(os.path.join(SOURCE_DATA_FOLDER, "stock_list_{}.json".format(CUR_DATE))) as json_f:
     stock_list = json.load(json_f)["stocks"]
 for index, row in dataframstock_list_frame.iterrows():
     stock_set.add(row["code"])
+print(len(stock_list))
+print(len(stock_set))
 
-assert len(stock_set) == len(stock_list), "Should have the same number of unique stocks, missing : {}".format(len())
+print("Should not ignore the stock codes")
+res = []
+for list_stock in stock_list:
+    added_code = add_stock_prefix(list_stock[0])
+    if added_code not in stock_set:
+        res.append(added_code)
+
+with open("res3.json", "w") as f:
+    json.dump(res, f)

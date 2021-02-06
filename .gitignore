@@ -134,3 +134,4 @@ dmypy.json
 # C++ build
 /cpp/debug/
 /cpp/release/
+/exp/*
