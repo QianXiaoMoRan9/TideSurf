@@ -23,6 +23,7 @@
 #include <parquet/exception.h>
 #include <vector>
 
+#include "tidesurf/server.h"
 #include "tidesurf/record_table.h"
 #include "tidesurf/globals.h"
 #include "tidesurf/file_io.h"
@@ -154,15 +155,6 @@ void read_single_column_chunk() {
 }
 
 int main(int argc, char** argv) {
-  std::shared_ptr<arrow::Table> table = generate_table();
-  write_parquet_file(*table);
-  read_whole_file();
-  read_single_rowgroup();
-  read_single_column();
-  read_single_column_chunk();
-
-    std::string content("lets rock!\n");
-    std::shared_ptr<std::string> shared = std::make_shared<std::string>(content);
-    std::cout << *shared;
+    tidesurf::start_server();
     return 0;
 }
