@@ -4,7 +4,7 @@
 
 namespace tidesurf {
 
-const ParquetTableSchemaVector STOCK_RECORD_PARQUET_TABLE_SCHEMA = {
+const ParquetTableSchemaVector SINA_A_STOCK_RECORD_PARQUET_TABLE_SCHEMA = {
     arrow::field("ask1", arrow::float64()),
     arrow::field("ask1_volume", arrow::int64()),
     arrow::field("ask2", arrow::float64()),
@@ -39,11 +39,27 @@ const ParquetTableSchemaVector STOCK_RECORD_PARQUET_TABLE_SCHEMA = {
     arrow::field("volume", arrow::float64()),
 };
 
-const  ParquetTableSchemaVector STOCK_LIST_PARQUET_TABLE_SCHEMA = {
+const  ParquetTableSchemaVector SINA_A_STOCK_LIST_PARQUET_TABLE_SCHEMA = {
     arrow::field("code", arrow::utf8()),
-    arrow::field("name", arrow::utf8()),
-    arrow::field("abbreviation", arrow::utf8())
+    arrow::field("name", arrow::utf8())
 };
 
+
+const  ParquetTableSchemaVector SINA_A_STOCK_SPLIT_SHARE_PARQUET_TABLE_SCHEMA = {
+    arrow::field("code", arrow::utf8()),
+    arrow::field("type", arrow::int64()),
+    arrow::field("exchange", arrow::int64()),
+    arrow::field("year", arrow::int64()),
+    arrow::field("month", arrow::int64()),
+    arrow::field("day", arrow::int64()),
+    arrow::field("price_day_before_yesterday", arrow::float64()),
+    arrow::field("close_price_before_split", arrow::float64()),
+    arrow::field("split_day_cur_price", arrow::float64()),
+    arrow::field("split_day_percentage_increase", arrow::float64()),
+    arrow::field("split_day_handover", arrow::int64()),
+    arrow::field("split_day_volume", arrow::float64()),
+    arrow::field("pre_split_adjust_factor", arrow::float64()),
+    arrow::field("post_split_adjust_factor", arrow::float64())
+};
 
 }

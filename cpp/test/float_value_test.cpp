@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "float_value.h"
+#include "tidesurf/float_value.h"
 
 using namespace tidesurf;
 

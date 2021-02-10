@@ -1,8 +1,10 @@
+#pragma once
+
 #include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <unordered_map>
-#pragma once
+
 #include <pthread.h>
 
 #include "rapidjson/document.h"
@@ -84,7 +86,7 @@ namespace tidesurf
         {
             stock_map_ = std::unordered_map<std::string, Stock>();
             std::string stock_list_path = config_.app_data_path_ + "/stock_list.parquet";
-            RecordTable stock_list_table = RecordTable(STOCK_LIST_PARQUET_TABLE_SCHEMA, stock_list_path);
+            RecordTable stock_list_table = RecordTable(SINA_A_STOCK_LIST_PARQUET_TABLE_SCHEMA, stock_list_path);
             RecordTableStringColumnIterator code_iterator = RecordTableStringColumnIterator(stock_list_table, 0);
             RecordTableStringColumnIterator name_iterator = RecordTableStringColumnIterator(stock_list_table, 0);
             RecordTableStringColumnIterator abbrev_iterator = RecordTableStringColumnIterator(stock_list_table, 0);

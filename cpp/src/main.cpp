@@ -23,7 +23,7 @@
 #include <parquet/exception.h>
 #include <vector>
 
-#include "tidesurf/server.h"
+#include "tidesurf/dashboard_server.h"
 #include "tidesurf/record_table.h"
 #include "tidesurf/globals.h"
 #include "tidesurf/file_io.h"
@@ -72,7 +72,7 @@ void write_parquet_file(const arrow::Table& table) {
 // #2: Fully read in the file
 arrow::Status read_whole_file() {
   std::cout << "Reading parquet-arrow-example.parquet at once" << std::endl;
-  tidesurf::RecordTable *record_table = new tidesurf::RecordTable(tidesurf::STOCK_LIST_PARQUET_TABLE_SCHEMA, "/home/steven/Desktop/Fast500/astock_parquet/stock_list.parquet");
+  tidesurf::RecordTable *record_table = new tidesurf::RecordTable(tidesurf::SINA_A_STOCK_LIST_PARQUET_TABLE_SCHEMA, "/home/steven/Desktop/Fast500/astock_parquet/stock_list.parquet");
   std::shared_ptr<arrow::Table> table = record_table->GetTable();
 
 //   auto turnovers = record_table->GetColumn<arrow::Int64Array>(30);
@@ -155,6 +155,5 @@ void read_single_column_chunk() {
 }
 
 int main(int argc, char** argv) {
-    tidesurf::start_server();
     return 0;
 }

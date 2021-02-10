@@ -50,10 +50,6 @@ namespace tidesurf
             return schema_ptr_;
         }
 
-        // std::string GetStringEntry(int64_t row, int64_t column) {
-        //     return this->GetColumn<arrow::StringArray>(column)->GetString(row);
-        // }
-
         std::shared_ptr<arrow::ChunkedArray> GetColumnChunkArray(int column)
         {
             return table_ptr_->column(column);
