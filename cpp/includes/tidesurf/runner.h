@@ -62,6 +62,7 @@ namespace tidesurf
     class Runner
     {
     public:
+
         Runner(const char *config_json_path)
         {
             InitConfiguration(config_json_path);
@@ -69,7 +70,7 @@ namespace tidesurf
         }
 
         void InitConfiguration(const char *config_json_path) {
-            config_ = TideSurfConfig(config_json_path);
+            config_ = *(new TideSurfConfig(config_json_path));
         }
 
         
@@ -84,7 +85,7 @@ namespace tidesurf
          */
         void InitStockMap(TideSurfConfig config)
         {
-            stock_map_ = std::unordered_map<std::string, Stock>();
+            stock_map_ = *(new std::unordered_map<std::string, Stock>());
             std::string stock_list_path = config_.app_data_path_ + "/stock_list.parquet";
             RecordTable stock_list_table = RecordTable(SINA_A_STOCK_LIST_PARQUET_TABLE_SCHEMA, stock_list_path);
             RecordTableStringColumnIterator code_iterator = RecordTableStringColumnIterator(stock_list_table, 0);

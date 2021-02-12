@@ -2,9 +2,10 @@
 
 using namespace tidesurf;
 
-void *serve_thread(void *vargp) {
-        pthread_exit(NULL);
-    }
+void *serve_thread(void *vargp)
+{
+    pthread_exit(NULL);
+}
 
 void start_server()
 {
@@ -107,11 +108,8 @@ void DashboardServer::StartServer()
         /* Accept() will block until a client connects to the port */
         client_info->connection_fd_ = accept(
             server_fd_,
-            (struct sockaddr *)&client_info->socket_address_, 
+            (struct sockaddr *)&client_info->socket_address_,
             (socklen_t *)&client_info->socket_address_length_);
         pthread_create(&tid, NULL, serve_thread, client_info);
     }
 }
-
-
-
