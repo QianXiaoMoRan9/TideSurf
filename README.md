@@ -58,8 +58,10 @@
 |         +-- 2020-12-23.log
 |      +-- cpp/
 |   +-- temp/
-|      +-- stock_list_2020-12-23.json
-|      +-- split_adjust_factor_2020-12-23.json
+|      +-- 2020-12-23/
+|         +-- data/
+|            +-- stock_list.json
+|            +-- split_adjust_factor.json
 |   +-- stock_selection/
 |      +-- watch_list.json
 |      +-- group_1.json

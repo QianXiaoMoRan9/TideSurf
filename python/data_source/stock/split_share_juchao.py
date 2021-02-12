@@ -130,7 +130,8 @@ def raw_code_to_astock_code(record):
     elif (record["F002V"] == "上交所"):
         return "sh" + record["SECCODE"]
     else:
-        raise NotImplementedError("Get Stock split encountered unknown exchange: {} with code {}".format(record["F002V"], record["SECCODE"]))
+        raise NotImplementedError("Get Stock split encountered unknown exchange: {} with code {}".format(
+            record["F002V"], record["SECCODE"]))
 
 
 def save_records_to_parquet(record_list, output_path):
@@ -161,23 +162,12 @@ def save_records_to_parquet(record_list, output_path):
                 records_dict[key].append(value)
     save_record_dict_to_parquet(records_dict, output_path)
 
-def get_split_share_from_stock_list_to_parquet(
-        data_folder,
-        cur_date,
-        output_folder,
-        start_date=None,
-        end_date=None):
-    """
-    Args:
-        data_folder
-        cur_date
-        output_folder
 
-        example:
-        /home/steven/Desktop/Fast500/sina-raw
-        2020-12-22
-        /home/steven/Desktop/Fast500/astock_parquet/
-    """
+def retrieve_all_stocks_from_stock_list(
+    data_folder,
+    cur_date,
+    start_date=None,
+    end_date=None):
     MAX_NUM_STOCK_PER_REQUEST = 49
     stock_list_path = "{}/{}/data/stock_list_{}.json".format(
         data_folder, cur_date, cur_date)
@@ -195,13 +185,39 @@ def get_split_share_from_stock_list_to_parquet(
             print("stepped {}, {}".format(start_index,
                                           start_index + MAX_NUM_STOCK_PER_REQUEST))
             time.sleep(2)
+    return record_list
 
-        parent_folder = os.path.join(output_folder, cur_date)
-        if not os.path.exists(parent_folder):
-            os.mkdir(parent_folder)
-        output_path = "{}/{}/split_share.parquet".format(
-            output_folder, cur_date)
-        save_records_to_parquet(record_list, output_path)
+
+def get_split_share_from_stock_list_to_parquet(
+        data_folder,
+        cur_date,
+        output_folder,
+        start_date=None,
+        end_date=None):
+    """
+    Args:
+        data_folder
+        cur_date
+        output_folder
+
+        example:
+        /home/steven/Desktop/Fast500/sina-raw
+        2020-12-22
+        /home/steven/Desktop/Fast500/astock_parquet/
+    """
+    record_list = retrieve_all_stocks_from_stock_list(
+        data_folder,
+        cur_date,
+        start_date,
+        end_date
+    )
+
+    parent_folder = os.path.join(output_folder, cur_date)
+    if not os.path.exists(parent_folder):
+        os.mkdir(parent_folder)
+    output_path = "{}/{}/split_share.parquet".format(
+        output_folder, cur_date)
+    save_records_to_parquet(record_list, output_path)
 
 
 if __name__ == "__main__":
