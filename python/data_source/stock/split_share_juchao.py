@@ -54,8 +54,8 @@ def get_split_share_json(stock_code_list, start_date=None, end_date=None):
                 "split_day_percentage_increase": 0.3626
                 "split_day_handover": 94094734,
                 "split_day_volume": 2592380291.0
-                "pre_split_adjust_factor": 0.96433566
-                "post_split_adjust_factor": 1.03698332
+                "backward_split_adjust_factor": 0.96433566
+                "forward_split_adjust_factor": 1.03698332
             }
         ]
 
@@ -111,8 +111,8 @@ def get_split_share_json(stock_code_list, start_date=None, end_date=None):
         entry["split_day_percentage_increase"] = record["F007N"]
         entry["split_day_handover"] = record["F008N"]
         entry["split_day_volume"] = record["F009N"]
-        entry["pre_split_adjust_factor"] = record["F010N"]
-        entry["post_split_adjust_factor"] = record["F011N"]
+        entry["backward_split_adjust_factor"] = record["F010N"]
+        entry["forward_split_adjust_factor"] = record["F011N"]
         res.append(entry)
 
     return res
@@ -148,8 +148,8 @@ def save_records_to_parquet(record_list, output_path):
         "split_day_percentage_increase": [],
         "split_day_handover": [],
         "split_day_volume": [],
-        "pre_split_adjust_factor": [],
-        "post_split_adjust_factor": []
+        "backward_split_adjust_factor": [],
+        "forward_split_adjust_factor": []
     }
     for record in record_list:
         for key, value in record.items():
@@ -221,4 +221,4 @@ def get_split_share_from_stock_list_to_parquet(
 
 
 if __name__ == "__main__":
-    print(get_split_share_json(['000002'], '2015-07-21', '2015-07-21'))
+    pass

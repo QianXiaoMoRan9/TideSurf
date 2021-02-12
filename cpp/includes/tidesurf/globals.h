@@ -58,8 +58,8 @@ const  ParquetTableSchemaVector SINA_A_STOCK_SPLIT_SHARE_PARQUET_TABLE_SCHEMA = 
     arrow::field("split_day_percentage_increase", arrow::float64()),
     arrow::field("split_day_handover", arrow::int64()),
     arrow::field("split_day_volume", arrow::float64()),
-    arrow::field("pre_split_adjust_factor", arrow::float64()),
-    arrow::field("post_split_adjust_factor", arrow::float64())
+    arrow::field("backward_split_adjust_factor", arrow::float64()),
+    arrow::field("forward_split_adjust_factor", arrow::float64())
 };
 
 }

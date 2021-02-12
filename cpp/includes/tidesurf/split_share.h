@@ -12,18 +12,18 @@ namespace tidesurf
     class SplitShareRecord
     {
     public:
-        SplitShareRecord(double pre_split_adjust_factor, double post_split_adjust_factor, ISODate date);
+        SplitShareRecord(double backward_split_adjust_factor, double forward_split_adjust_factor, ISODate date);
 
         bool operator < (const SplitShareRecord &rhs) const;
 
         double GetPreSplitAdjustFactor() const
         {
-            return pre_split_adjust_factor_;
+            return backward_split_adjust_factor_;
         }
 
         double GetPostSplitAdjustFactor() const
         {
-            return post_split_adjust_factor_;
+            return forward_split_adjust_factor_;
         }
 
         ISODate GetDate() const
@@ -32,8 +32,8 @@ namespace tidesurf
         }
 
     private:
-        double pre_split_adjust_factor_;
-        double post_split_adjust_factor_;
+        double backward_split_adjust_factor_;
+        double forward_split_adjust_factor_;
         ISODate date_;
     };
 
@@ -53,7 +53,7 @@ namespace tidesurf
 
     private:
         std::unordered_map<std::string, std::list<SplitShareRecord>> split_record_map_;
-        std::unordered_map<std::string, std::list<SplitShareRecord>::iterator> pre_split_iterator_map_;
-        std::unordered_map<std::string, std::list<SplitShareRecord>::iterator> post_split_iterator_map_;
+        std::unordered_map<std::string, std::list<SplitShareRecord>::iterator> backward_split_iterator_map_;
+        std::unordered_map<std::string, std::list<SplitShareRecord>::iterator> forward_split_iterator_map_;
     };
 } // namespace tidesurf
