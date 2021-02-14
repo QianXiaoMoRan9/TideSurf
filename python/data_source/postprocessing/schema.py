@@ -77,8 +77,15 @@ def create_sina_record_dict():
 def create_sina_stock_list_record_dict():
     return {
         "code": [],
-        "name": [],
-        "abbreviation": []
+        "name": []
     }
 
-
+def create_app_realtime_data_record_dict():
+    return {
+        "code": [],
+        "hour": [],
+        "minute": [],
+        "second": [],
+        "turnover": [],
+        "volume": []
+    }

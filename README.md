@@ -24,7 +24,7 @@
 .
 +-- 2020-12-21/
 |   +-- stock_list.parquet
-|   +-- split_share.parquet
+|   +-- split_adjust.parquet
 |   +-- code_to_partition_map.json
 |   +-- 001.parquet
 |   +-- 002.parquet
@@ -40,9 +40,9 @@
 ### code_to_partition_map.json
 ```json
 {
-    "000001": "001",
-    "000002": "001",
-    "600809": "005",
+    "000001": "1",
+    "000002": "1",
+    "600809": "5",
     ...
 }
 ```
@@ -52,7 +52,6 @@
 ```
 .
 +-- astock/
-|   +-- stock_list.parquet
 |   +-- log/
 |      +-- python/
 |         +-- 2020-12-23.log
@@ -67,7 +66,7 @@
 |      +-- group_1.json
 |      +-- ...
 |   +-- record_data/
-|      +-- realtime_pre_split/
+|      +-- realtime_data/ (after split adjust)
 |         +-- 2020-12-21/
 |            +-- code_to_partition_map.json
 |            +-- latest_adjust_record.json
