@@ -191,9 +191,6 @@ def add_record(
                 records_dict[code][key].append(int(record[key]))
     records_dict[code]["code"].append(code)
 
-
-
-
 def dump_partition(
         data_folder,
         destination_folder,

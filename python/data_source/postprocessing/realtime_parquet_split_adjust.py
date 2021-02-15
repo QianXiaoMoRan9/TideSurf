@@ -68,7 +68,7 @@ class RealTimeParquetDataSplitAdjust(Postprocessor):
         while (os.path.exists(partition_path)):
             new_records_dict = create_app_realtime_data_record_dict()
             dataframe = load_parquet_to_dataframe(partition_path)
-            for row in dataframe.rows:
+            for _, row in dataframe.iterrows():
                 code = row["code"]
                 hour = row["hour"]
                 minute = row["minute"]
@@ -111,7 +111,7 @@ class RealTimeParquetDataSplitAdjust(Postprocessor):
         parquet_path = self.get_source_date_split_adjust(
             self.split_adjust_record_date)
         dataframe = load_parquet_to_dataframe(parquet_path)
-        for row in dataframe.rows:
+        for _, row in dataframe.iterrows():
             self.split_adjust.add_record(
                 row["code"],
                 date(row["year"], row["month"], row["day"]),

@@ -39,14 +39,17 @@ class RealtimeSourceDataToAppSourceData(Postprocessor):
             records_dict = create_app_realtime_data_record_dict()
             app_data_partition_path = self.get_app_astock_record_data_realtime_date_partition(self.data_date, cur_partition)
 
-            dataframe = load_parquet_to_dataframe(app_data_partition_path)
-            for row in dataframe.rows:
+            dataframe = load_parquet_to_dataframe(source_partition_path)
+            for _, row in dataframe.iterrows():
                 records_dict["code"].append(row["code"])
                 records_dict["hour"].append(row["hour"])
                 records_dict["minute"].append(row["minute"])
                 records_dict["second"].append(row["second"])
                 records_dict["turnover"].append(row["turnover"])
-                records_dict["avg_price"].append(row["volume"] / row["turnover"])
+                if (row["turnover"] == 0):
+                    records_dict["avg_price"].append(0.0)
+                else:
+                    records_dict["avg_price"].append(row["volume"] / row["turnover"])
             
             save_record_dict_to_parquet(records_dict, app_data_partition_path)
 
@@ -60,5 +63,5 @@ class RealtimeSourceDataToAppSourceData(Postprocessor):
     
     @property 
     def data_date(self):
-        return self._app_data_folder
+        return self._data_date
     

@@ -5,6 +5,10 @@ class Postprocessor(object):
     def __init__(self, source_data_folder, app_data_folder):
         self._source_data_folder = source_data_folder
         self._app_data_folder = app_data_folder
+
+        self._app_astock_folder = os.path.join(self.app_data_folder, "astock")
+        self._app_astock_record_data_folder = os.path.join(self.app_astock_folder, "record_data")
+        self._app_astock_record_data_realtime_folder = os.path.join(self.app_astock_record_data_folder, "realtime_data")
         self.verify_folder_structure()
     
     def verify_folder_structure(self):
@@ -12,7 +16,7 @@ class Postprocessor(object):
         assert os.path.exists(self.app_data_folder)
         # setup folders in the app_data_folder
         astock_folder = self.app_astock_folder
-        if not os.path.exists(self.astock_folder):
+        if not os.path.exists(self.app_astock_folder):
             os.mkdir(astock_folder)
         
         log_folder = self.app_astock_log_folder
@@ -36,7 +40,8 @@ class Postprocessor(object):
             os.mkdir(realtime_folder)
         
     def get_app_astock_record_data_realtime_date_folder(self, data_date):
-        return os.path.join(app_astock_record_data_realtime_folder, data_date)
+        res = os.path.join(self.app_astock_record_data_realtime_folder, data_date)
+        return res
     
     def get_app_astock_record_data_realtime_date_partition(self, data_date, partition):
         assert type(partition) == int
@@ -46,6 +51,7 @@ class Postprocessor(object):
         )
     
     def get_app_astock_record_data_realtime_date_code_to_partition_map(self, data_date):
+        print(self.get_app_astock_record_data_realtime_date_folder(data_date))
         return os.path.join(
             self.get_app_astock_record_data_realtime_date_folder(data_date),
             "code_to_partition_map.json"
@@ -99,7 +105,7 @@ class Postprocessor(object):
 
     @property
     def app_astock_folder(self):
-        return os.path.join(self.app_data_folder, "astock")
+        return self._app_astock_folder
     
     @property 
     def app_astock_log_folder(self):
@@ -115,9 +121,9 @@ class Postprocessor(object):
     
     @property
     def app_astock_record_data_folder(self):
-        return os.path.join(self.app_astock_folder, "record_data")
+        return self._app_astock_record_data_folder
     
     @property
     def app_astock_record_data_realtime_folder(self):
-        return os.path.join(self.app_astock_record_data_folder, "realtime_data")
+        return self._app_astock_record_data_realtime_folder
 
