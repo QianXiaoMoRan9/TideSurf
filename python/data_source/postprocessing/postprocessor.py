@@ -51,6 +51,12 @@ class Postprocessor(object):
             "code_to_partition_map.json"
         )
     
+    def get_app_astock_data_realtime_date_latest_adjust_record(self, data_date):
+        return os.path.join(
+            self.get_app_astock_record_data_realtime_date_folder(data_date),
+            "latest_adjust_record.json"
+        )
+
     def get_source_date_folder(self, data_date):
         return os.path.join(
             self.source_data_folder,

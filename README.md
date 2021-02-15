@@ -108,11 +108,11 @@
 |         +-- ...
 ```
 
-### astock/temp/stock_list_2020-12-23.json
+### source_data_folder/2021-02-03/split_adjust.parquet
 ```json
 [
     {
-        "raw_code": "000002",
+        "code": "sz000002",
         "type": AssetType.STOCK / AssetType.FUND,
         "exchange": AStockExchange.SHANGHAI / AStockExchange.SHENZHEN
         "split_date": 2020-08-14
@@ -138,4 +138,12 @@
     ],
     ...
 ]
+```
+
+### astock/record_data/realtime_data/2020-12-21/latest_adjust_record.json
+```json
+{
+    "sz000001": "2020-12-21",
+    ...
+}
 ```

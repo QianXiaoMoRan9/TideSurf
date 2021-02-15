@@ -86,6 +86,6 @@ def create_app_realtime_data_record_dict():
         "hour": [],
         "minute": [],
         "second": [],
-        "turnover": [],
-        "volume": []
+        "avg_price": [],
+        "turnover": []
     }
