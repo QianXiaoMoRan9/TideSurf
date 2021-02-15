@@ -62,4 +62,14 @@ const  ParquetTableSchemaVector SINA_A_STOCK_SPLIT_SHARE_PARQUET_TABLE_SCHEMA = 
     arrow::field("forward_split_adjust_factor", arrow::float64())
 };
 
+const  ParquetTableSchemaVector A_STOCK_REALTIME_PARQUET_TABLE_SCHEMA = {
+    arrow::field("code", arrow::utf8()),
+    arrow::field("hour", arrow::int64()),
+    arrow::field("minute", arrow::int64()),
+    arrow::field("second", arrow::int64()),
+    arrow::field("month", arrow::int64()),
+    arrow::field("avg_price", arrow::float64()),
+    arrow::field("turnover", arrow::int64())
+};
+
 }

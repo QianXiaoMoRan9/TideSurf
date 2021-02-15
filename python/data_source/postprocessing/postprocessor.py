@@ -40,8 +40,7 @@ class Postprocessor(object):
             os.mkdir(realtime_folder)
         
     def get_app_astock_record_data_realtime_date_folder(self, data_date):
-        res = os.path.join(self.app_astock_record_data_realtime_folder, data_date)
-        return res
+        return os.path.join(self.app_astock_record_data_realtime_folder, data_date)
     
     def get_app_astock_record_data_realtime_date_partition(self, data_date, partition):
         assert type(partition) == int
@@ -51,7 +50,6 @@ class Postprocessor(object):
         )
     
     def get_app_astock_record_data_realtime_date_code_to_partition_map(self, data_date):
-        print(self.get_app_astock_record_data_realtime_date_folder(data_date))
         return os.path.join(
             self.get_app_astock_record_data_realtime_date_folder(data_date),
             "code_to_partition_map.json"
@@ -61,6 +59,15 @@ class Postprocessor(object):
         return os.path.join(
             self.get_app_astock_record_data_realtime_date_folder(data_date),
             "latest_adjust_record.json"
+        )
+
+    def get_app_astock_data_daily_breakdown_date_folder(self, data_date):
+        return os.path.join(self.app_astock_record_data_daily_breakdown_folder, data_date)
+    
+    def get_app_astock_data_daily_breakdown_date_price_breakdown(self, data_date):
+        return os.path.join(
+            self.get_app_astock_data_daily_breakdown_date_folder(data_date),
+            "price_breakdown.parquet"
         )
 
     def get_source_date_folder(self, data_date):
@@ -95,6 +102,7 @@ class Postprocessor(object):
             "code_to_partition_map.json"
         )
 
+
     @property
     def source_data_folder(self):
         return self._source_data_folder
@@ -127,3 +135,7 @@ class Postprocessor(object):
     def app_astock_record_data_realtime_folder(self):
         return self._app_astock_record_data_realtime_folder
 
+    @property
+    def app_astock_record_data_daily_breakdown_folder(self):
+        return os.path.join(self.app_astock_record_data_folder, "daily_breakdown")
+    

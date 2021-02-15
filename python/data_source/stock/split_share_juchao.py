@@ -221,4 +221,8 @@ def get_split_share_from_stock_list_to_parquet(
 
 
 if __name__ == "__main__":
-    pass
+    get_split_share_from_stock_list_to_parquet(
+        sys.argv[1],
+        sys.argv[2],
+        sys.argv[3]
+    )

@@ -80,6 +80,24 @@ def create_sina_stock_list_record_dict():
         "name": []
     }
 
+def create_junchao_split_adjust_record_dict():
+    return {
+        "code": [],
+        "type": [],
+        "exchange": [],
+        "year": [],
+        "month": [],
+        "day": [],
+        "price_day_before_yesterday": [],
+        "close_price_before_split": [],
+        "split_day_cur_price": [],
+        "split_day_percentage_increase": [],
+        "split_day_handover": [],
+        "split_day_volume": [],
+        "backward_split_adjust_factor": [],
+        "forward_split_adjust_factor": []
+    }
+
 def create_app_realtime_data_record_dict():
     return {
         "code": [],
@@ -88,4 +106,13 @@ def create_app_realtime_data_record_dict():
         "second": [],
         "avg_price": [],
         "turnover": []
+    }
+
+def create_app_daily_price_breakdown_record_dict():
+    return {
+        "code": [],
+        "price_int": [],
+        "price_float": [],
+        "num_share": [],
+        "share_percentage": []
     }

@@ -4,14 +4,14 @@ from data_source.postprocessing.realtime_source_data_to_app_source_data import R
 
 SOURCE_DATA_FOLDER = "/home/steven/Desktop/Fast500/astock_parquet"
 APP_DATA_FOLDER = "/home/steven/Desktop/Fast500/tidesurf_data"
-DATA_DATE = "2020-12-22"
+DATA_DATE = "2021-02-10"
 obj = RealtimeSourceDataToAppSourceData(
     SOURCE_DATA_FOLDER,
     APP_DATA_FOLDER,
     DATA_DATE
 )
 
-# obj.run()
+obj.run()
 
 with open(obj.get_source_date_code_to_partition_map(DATA_DATE), "r") as json_f:
     source_code_to_partition_dict = json.load(json_f)

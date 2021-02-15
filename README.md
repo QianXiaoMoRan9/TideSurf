@@ -73,12 +73,9 @@
 |            +-- 1.parquet
 |            +-- 2.parquet
 |            +-- ...
-|      +-- 1_min_volume/
+|      +-- daily_breakdown/ (without split adjust)
 |         +-- 2020-12-21/
-|            +-- code_to_partition_map.json
-|            +-- 001.parquet
-|            +-- 002.parquet
-|            +-- ...
+|            +-- price_breakdown.parquet
 |      +-- 5_min_volume/
 |         +-- 2020-12-21/
 |            +-- code_to_partition_map.json

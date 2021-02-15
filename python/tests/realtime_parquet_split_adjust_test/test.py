@@ -16,9 +16,31 @@ class RealtimeSourceDataToAppSourceDataTest(TestCase):
             os.mkdir(self.app_data_folder)
 
         codes = [
-            "sz000001", "sh600450", "sz000002", "sz003456", "sh603456"
+            "sz000001", "sh600450", "sz000002", "sz003456","sz000003", "sh603456"
         ]
-        self.num_records = 100
+        self.num_records = 10
+
+        dates = [
+            "2020-12-21", "2020-12-22", "2020-12-23", "2020-12-24", "2020-12-25", "2020-12-28"
+        ]
+
+        split_adjust_record_20201228 = {
+            "code": [],
+            "type": [],
+            "exchange": [],
+            "year": [],
+            "month": [],
+            "day": [],
+            "price_day_before_yesterday": [],
+            "close_price_before_split": [],
+            "split_day_cur_price": [],
+            "split_day_percentage_increase": [],
+            "split_day_handover": [],
+            "split_day_volume": [],
+            "backward_split_adjust_factor": [],
+            "forward_split_adjust_factor": []
+        }
+
         self.records_dict_20201221 = {
             "ask1": [random.uniform(10.0, 12.0) for _ in range(self.num_records)],
             "ask1_volume": [random.randint(30, 1000) for _ in range(self.num_records)],
