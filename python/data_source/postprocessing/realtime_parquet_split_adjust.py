@@ -76,7 +76,7 @@ class RealTimeParquetDataSplitAdjust(Postprocessor):
                 avg_price = row["avg_price"]
                 turnover = row["turnover"]
 
-                prev_adjusted_date = date(hour, minute, second)
+                prev_adjusted_date = record_date
                 if code in latest_adjust_record_dict:
                     prev_adjusted_date = latest_adjust_record_dict[code]
                 factor = self.split_adjust.get_stock_backward_adjust_factor_for_date(code, prev_adjusted_date)
@@ -105,9 +105,9 @@ class RealTimeParquetDataSplitAdjust(Postprocessor):
         new_split_adjust_path = self.get_app_astock_data_realtime_date_latest_adjust_record(
             self.realtime_record_date)
         with open(new_split_adjust_path, "w") as json_f:
-            json.dump(new_adjust_record_dict, new_split_adjust_path)
+            json.dump(new_adjust_record_dict, json_f)
 
-    def load_split_adjust_record_parquet(self, parquet_path):
+    def load_split_adjust_record_parquet(self):
         parquet_path = self.get_source_date_split_adjust(
             self.split_adjust_record_date)
         dataframe = load_parquet_to_dataframe(parquet_path)
