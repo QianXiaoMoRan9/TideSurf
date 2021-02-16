@@ -80,6 +80,8 @@ class RealTimeParquetDataSplitAdjust(Postprocessor):
                 if code in latest_adjust_record_dict:
                     prev_adjusted_date = latest_adjust_record_dict[code]
                 factor = self.split_adjust.get_stock_backward_adjust_factor_for_date(code, prev_adjusted_date)
+                if (factor != 1.0):
+                    print("performed adjust for {}, {}".format(code, prev_adjusted_date))
                 
                 # update the newly adjusted date for the code
                 if code not in new_adjust_record_dict:
@@ -92,10 +94,7 @@ class RealTimeParquetDataSplitAdjust(Postprocessor):
                 new_records_dict["avg_price"].append(avg_price * factor)
                 new_records_dict["turnover"].append(turnover)
             
-            realtime_parquet_partition_path = self.get_app_astock_record_data_realtime_date_partition(
-                self.realtime_record_date,
-                cur_partition
-            )
+            save_record_dict_to_parquet(new_records_dict, partition_path)
 
             cur_partition += 1
             partition_path = self.get_app_astock_record_data_realtime_date_partition(

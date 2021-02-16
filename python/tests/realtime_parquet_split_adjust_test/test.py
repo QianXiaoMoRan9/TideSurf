@@ -12,7 +12,7 @@ from data_source.postprocessing.postprocessor import Postprocessor
 from data_source.postprocessing.schema import create_app_realtime_data_record_dict
 from data_source.postprocessing.realtime_parquet_split_adjust import RealTimeParquetDataSplitAdjust
 
-class RealTimeParquetDataSplitAdjustTest(TestCase):
+class RealTimeParquetDataSplitAdjustTest():
 
     def setUp(self):
         
@@ -24,102 +24,30 @@ class RealTimeParquetDataSplitAdjustTest(TestCase):
         if not os.path.exists(self.app_data_folder):
             os.mkdir(self.app_data_folder)
 
+        self.dates = ["2020-12-21", "2020-12-22", "2020-12-23", "2020-12-24", "2020-12-25", "2020-12-28"]
         self.postprocessor = Postprocessor(self.source_data_folder, self.app_data_folder)
         self.codes = [
             "sz000001", "sh600450", "sz000002", "sz003456","sz000003", "sh603456"
         ]
+
+        self.date_to_record_dict_dict = dict()
         self.num_records = 10
-
-        
-
-        self.records_dict_20201221 = create_app_realtime_data_record_dict()
-        for code in self.codes:
-            self.records_dict_20201221["code"] += [code for _ in range(self.num_records)]
-            self.records_dict_20201221["hour"] += [random.randint(9, 12) for _ in range(self.num_records)]
-            self.records_dict_20201221["minute"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201221["second"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201221["avg_price"] += [random.uniform(10.0, 12.0) for _ in range(self.num_records)]
-            self.records_dict_20201221["turnover"] += [random.randint(100, 5000) for _ in range(self.num_records)]
-        os.mkdir(self.postprocessor.get_app_astock_record_data_realtime_date_folder("2020-12-21"))
-        save_record_dict_to_parquet(
-            self.records_dict_20201221,
-            self.postprocessor.get_app_astock_record_data_realtime_date_partition("2020-12-21", 0)
-        )
-
-        self.records_dict_20201222 = create_app_realtime_data_record_dict()
-        for code in self.codes:
-            self.records_dict_20201222["code"] += [code for _ in range(self.num_records)]
-            self.records_dict_20201222["hour"] += [random.randint(9, 12) for _ in range(self.num_records)]
-            self.records_dict_20201222["minute"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201222["second"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201222["avg_price"] += [random.uniform(10.0, 12.0) for _ in range(self.num_records)]
-            self.records_dict_20201222["turnover"] += [random.randint(100, 5000) for _ in range(self.num_records)]
-        os.mkdir(self.postprocessor.get_app_astock_record_data_realtime_date_folder("2020-12-22"))
-        save_record_dict_to_parquet(
-            self.records_dict_20201222,
-            self.postprocessor.get_app_astock_record_data_realtime_date_partition("2020-12-22", 0)
-        )
-
-
-        self.records_dict_20201224 = create_app_realtime_data_record_dict()
-        for code in self.codes:
-            self.records_dict_20201224["code"] += [code for _ in range(self.num_records)]
-            self.records_dict_20201224["hour"] += [random.randint(9, 12) for _ in range(self.num_records)]
-            self.records_dict_20201224["minute"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201224["second"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201224["avg_price"] += [random.uniform(10.0, 12.0) for _ in range(self.num_records)]
-            self.records_dict_20201224["turnover"] += [random.randint(100, 5000) for _ in range(self.num_records)]
-        os.mkdir(self.postprocessor.get_app_astock_record_data_realtime_date_folder("2020-12-24"))
-        save_record_dict_to_parquet(
-            self.records_dict_20201224,
-            self.postprocessor.get_app_astock_record_data_realtime_date_partition("2020-12-24", 0)
-        )
-
-        self.records_dict_20201225 = create_app_realtime_data_record_dict()
-        for code in self.codes:
-            self.records_dict_20201225["code"] += [code for _ in range(self.num_records)]
-            self.records_dict_20201225["hour"] += [random.randint(9, 12) for _ in range(self.num_records)]
-            self.records_dict_20201225["minute"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201225["second"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201225["avg_price"] += [random.uniform(10.0, 12.0) for _ in range(self.num_records)]
-            self.records_dict_20201225["turnover"] += [random.randint(100, 5000) for _ in range(self.num_records)]
-        os.mkdir(self.postprocessor.get_app_astock_record_data_realtime_date_folder("2020-12-25"))
-        save_record_dict_to_parquet(
-            self.records_dict_20201225,
-            self.postprocessor.get_app_astock_record_data_realtime_date_partition("2020-12-25", 0)
-        )
-        
-        self.records_dict_20201223 = create_app_realtime_data_record_dict()
-        for code in self.codes:
-            self.records_dict_20201223["code"] += [code for _ in range(self.num_records)]
-            self.records_dict_20201223["hour"] += [random.randint(9, 12) for _ in range(self.num_records)]
-            self.records_dict_20201223["minute"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201223["second"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201223["avg_price"] += [random.uniform(10.0, 12.0) for _ in range(self.num_records)]
-            self.records_dict_20201223["turnover"] += [random.randint(100, 5000) for _ in range(self.num_records)]
-        os.mkdir(self.postprocessor.get_app_astock_record_data_realtime_date_folder("2020-12-23"))
-        save_record_dict_to_parquet(
-            self.records_dict_20201223,
-            self.postprocessor.get_app_astock_record_data_realtime_date_partition("2020-12-23", 0)
-        )
-        
-        self.records_dict_20201228 = create_app_realtime_data_record_dict()
-        for code in self.codes:
-            self.records_dict_20201228["code"] += [code for _ in range(self.num_records)]
-            self.records_dict_20201228["hour"] += [random.randint(9, 12) for _ in range(self.num_records)]
-            self.records_dict_20201228["minute"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201228["second"] += [random.randint(0, 60) for _ in range(self.num_records)]
-            self.records_dict_20201228["avg_price"] += [random.uniform(10.0, 12.0) for _ in range(self.num_records)]
-            self.records_dict_20201228["turnover"] += [random.randint(100, 5000) for _ in range(self.num_records)]
-        os.mkdir(self.postprocessor.get_app_astock_record_data_realtime_date_folder("2020-12-28"))
-        save_record_dict_to_parquet(
-            self.records_dict_20201228,
-            self.postprocessor.get_app_astock_record_data_realtime_date_partition("2020-12-28", 0)
-        )
-
-        dates = [
-            "2020-12-21", "2020-12-22", "2020-12-23", "2020-12-24", "2020-12-25", "2020-12-28"
-        ]
+        for i in range(len(self.codes)):
+            date = self.dates[i]
+            record_dict = create_app_realtime_data_record_dict()
+            for code in self.codes:
+                record_dict["code"] += [code for _ in range(self.num_records)]
+                record_dict["hour"] += [random.randint(9, 12) for _ in range(self.num_records)]
+                record_dict["minute"] += [random.randint(0, 60) for _ in range(self.num_records)]
+                record_dict["second"] += [random.randint(0, 60) for _ in range(self.num_records)]
+                record_dict["avg_price"] += [random.uniform(10.0, 12.0) for _ in range(self.num_records)]
+                record_dict["turnover"] += [random.randint(100, 5000) for _ in range(self.num_records)]
+            os.mkdir(self.postprocessor.get_app_astock_record_data_realtime_date_folder(date))
+            save_record_dict_to_parquet(
+                record_dict,
+                self.postprocessor.get_app_astock_record_data_realtime_date_partition(date, 0)
+            )
+            self.date_to_record_dict_dict[date] = record_dict
 
         self.latest_split_adjust_20201221 = {
             "sz000002": "2020-12-24"
@@ -149,25 +77,76 @@ class RealTimeParquetDataSplitAdjustTest(TestCase):
             self.postprocessor.get_source_date_split_adjust("2020-12-28")
         )
 
-        self.processor = RealTimeParquetDataSplitAdjust(
-            self.source_data_folder, 
-            self.app_data_folder,
-            "2020-12-28",
-            "2020-12-28"
-        )
+        for adjust_date in self.dates:
+            self.split_adjust_processor = RealTimeParquetDataSplitAdjust(
+                self.source_data_folder, 
+                self.app_data_folder,
+                adjust_date,
+                "2020-12-28"
+            )
 
-        self.processor.run()
+            self.split_adjust_processor.run()
 
     def tearDown(self):
         shutil.rmtree(self.source_data_folder)
         shutil.rmtree(self.app_data_folder)
 
-    def test_multiple_split_adjust(self):
-        time.sleep(10)
+    def perform_adjust(self, code, data_date, discount_factor, partition = 0):
+        adjusted_parquet_path = self.postprocessor.get_app_astock_record_data_realtime_date_partition(
+            data_date,
+            partition
+        )
+        dataframe = load_parquet_to_dataframe(adjusted_parquet_path)
+        cur_index = 0
 
-    def test_split_adjust_already_done(self):
-        pass
+        for _, row in dataframe.iterrows():
+            if (row["code"] == code):
+                self.assertAlmostEqual(
+                    row["avg_price"], 
+                    discount_factor * self.date_to_record_dict_dict[data_date]["avg_price"][cur_index]
+                )
+            cur_index += 1
+
+    def test_multiple_split_adjust(self):
+        
+        # test if the split adjust on multiple time scale is effective
+
+        "Verify sz000001 price at 2020-12-28 does not change"
+        self.perform_adjust("sz000001", "2020-12-28", 1.0)
+
+        "Verify sz000001 price at 2020-12-25 changes by 0.55"
+        self.perform_adjust("sz000001", "2020-12-25", 0.55)
+
+        "Verify sz000001 price at 2020-12-22 changes by 0.55"
+        self.perform_adjust("sz000001", "2020-12-22", 0.55)
+
+        "Verify sz000001 price at 2020-12-21 changes by 0.55*0.45"
+        self.perform_adjust("sz000001", "2020-12-21", 0.55 * 0.45)
+
+        "Verify sz000002 price at 2020-12-23 does not change"
+        self.perform_adjust("sz000002", "2020-12-23", 1.0)
+
+        "Verify sz000002 price at 2020-12-22 changes by 0.4"
+        self.perform_adjust("sz000002", "2020-12-22", 0.4)
+
+        "Verify sz000002 price at 2020-12-21 does not change"
+        self.perform_adjust("sz000002", "2020-12-21", 1.0)
+
+        # test if the split adjust on timestamp that has already been adjusts is effective
+
+    def assertAlmostEqual(self, a, b):
+        if not (abs(a-b) < 1e-5):
+            print("Got two diferent value {}, {}".format(a, b))
+            self.tearDown()
+            assert False 
+
+    def run(self):
+        t.setUp() 
+        t.test_multiple_split_adjust()
+        t.tearDown()
 
 
 if __name__ == "__main__":
-    unittest.main()
+    t = RealTimeParquetDataSplitAdjustTest()
+    t.run()
+
