@@ -38,6 +38,10 @@ class Postprocessor(object):
         realtime_folder = self.app_astock_record_data_realtime_folder
         if not os.path.exists(realtime_folder):
             os.mkdir(realtime_folder)
+
+        daily_breakdown_folder = self.app_astock_record_data_daily_breakdown_folder
+        if not os.path.exists(daily_breakdown_folder):
+            os.mkdir(daily_breakdown_folder)
         
     def get_app_astock_record_data_realtime_date_folder(self, data_date):
         return os.path.join(self.app_astock_record_data_realtime_folder, data_date)
