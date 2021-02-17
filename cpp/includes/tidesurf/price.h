@@ -3,43 +3,43 @@
 #include <cstdint>
 #include <cmath>
 #include "math_util.h"
-
+#include <arrow/api.h>
 namespace tidesurf {
 
 /**
  * @brief define the positive floating point value of the 
  * 
  */
-class FloatValue {
+class Price {
 public:
-    FloatValue(float f_value, uint8_t precision = 2) {
+    Price(float f_value, uint32_t precision = 100) {
         if (f_value >= 0) {
             sign_ = false;
         } else {
             sign_ = true;
         }
         
-        precision_ = power(10, precision);
+        precision_ = precision;
         float multiplier = (float) precision_;
         precision_ = precision;
-        float int_part_float = floor(f_value);
-        float float_part_float = floor((f_value - int_part_float) * multiplier);
-        int_part_ = (uint32_t) int_part_float;
-        float_part_ = (uint32_t) float_part_float;
+        float int_part_float = round(f_value);
+        float float_part_float = round((f_value - int_part_float) * multiplier);
+        int_part_ = (int64_t) int_part_float;
+        float_part_ = (int64_t) float_part_float;
     }
 
-    FloatValue(uint32_t int_part, uint32_t float_part, bool sign, uint8_t precision = 2) {
+    Price(int64_t int_part, int64_t float_part, bool sign, uint32_t precision = 100) {
         int_part_ = int_part;
         float_part_ = float_part;
         sign_ = sign;
-        precision_ = power(10, precision);
+        precision_ = precision;
     }
 
-    uint32_t GetIntPart() {
+    int64_t GetIntPart() {
         return int_part_; 
     }
 
-    uint32_t GetFloatPart() {
+    int64_t GetFloatPart() {
         return float_part_;
     }
     
@@ -54,8 +54,8 @@ public:
 private:
     bool sign_; // false is positive, true is negative
     uint32_t precision_;
-    uint32_t int_part_;
-    uint32_t float_part_;
+    int64_t int_part_;
+    int64_t float_part_;
 
 };
 
