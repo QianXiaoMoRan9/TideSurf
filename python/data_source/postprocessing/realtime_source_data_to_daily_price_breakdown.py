@@ -14,7 +14,7 @@ from data_source.lib.price import PriceTwoDecimal
 from data_source.postprocessing.postprocessor import Postprocessor
 from data_source.postprocessing.schema import create_app_daily_price_breakdown_record_dict
 
-class RealtimeSourceDataToDailtPriceBreakdown(Postprocessor):
+class RealtimeSourceDataToDailyPriceBreakdown(Postprocessor):
     def __init__(self, source_data_folder, app_data_folder, data_date):
         super().__init__(source_data_folder, app_data_folder)
         self._data_date = data_date
@@ -55,7 +55,7 @@ class RealtimeSourceDataToDailtPriceBreakdown(Postprocessor):
                 total_turnover_dict[code] += turnover
             
             cur_partition += 1
-            partition_path = self.get_source_date_partition(self, data_date, cur_partition)
+            partition_path = self.get_source_date_partition(self.data_date, cur_partition)
         # accumulate: each 
         record_dict = create_app_daily_price_breakdown_record_dict()
         for code, price_dict in breakdown_dict.items(): 
