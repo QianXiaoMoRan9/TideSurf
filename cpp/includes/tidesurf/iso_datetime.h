@@ -9,6 +9,22 @@ namespace tidesurf
 
     static const std::string DATE_DELIMITER = "-";
     static const std::string TIME_DELIMITER = ":";
+    static const int64_t MONTH_DAY_MAP[] = {
+        31,
+        28,
+        31,
+        30,
+        31,
+        30,
+        31,
+        31,
+        30,
+        31,
+        30,
+        31
+    };
+    static const int64_t RUN_BASE_YEAR = 2020;
+    static const int64_t RUN_YEAR_PERIOD = 4;
 
     class ISODate
     {

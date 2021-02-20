@@ -32,10 +32,19 @@ int64_t ISODate::GetDay() const
 
 ISODate ISODate::operator+(const ISODate &rhs) const
 {
+    int64_t added_day = GetDay() + rhs.GetDay();
+    int64_t added_month = GetMonth() + rhs.GetMonth();
+    int64_t added_year = GetYear() + rhs.GetYear();
+
+    added_year += added_month / 12;
+    added_month %= 12;
+
+    
+    
     return ISODate(
-        GetYear() + rhs.GetYear(),
-        GetMonth() + rhs.GetMonth(),
-        GetDay() + rhs.GetDay());
+        ,
+        ,
+        );
 }
 ISODate ISODate::operator-(const ISODate &rhs) const
 {
@@ -227,50 +236,59 @@ std::string ISOTime::ToString() const
     return std::to_string(GetHour()) + TIME_DELIMITER + std::to_string(GetMinute()) + TIME_DELIMITER + std::to_string(GetSecond());
 }
 
-ISODatetime::ISODatetime(ISODate date, ISOTime time) 
-: date_(date), time_(time) {
-
-}
-ISODatetime::ISODatetime(int64_t year, int64_t month, int64_t day, int64_t hour, int64_t minute, int64_t second) 
-: date_(year, month, day), time_(hour, minute, second)
+ISODatetime::ISODatetime(ISODate date, ISOTime time)
+    : date_(date), time_(time)
 {
-
+}
+ISODatetime::ISODatetime(int64_t year, int64_t month, int64_t day, int64_t hour, int64_t minute, int64_t second)
+    : date_(year, month, day), time_(hour, minute, second)
+{
 }
 
-ISODate ISODatetime::GetDate() const {
+ISODate ISODatetime::GetDate() const
+{
     return date_;
 }
-ISOTime ISODatetime::GetTime() const {
+ISOTime ISODatetime::GetTime() const
+{
     return time_;
 }
 
-ISODatetime ISODatetime::operator+(const ISODatetime &rhs) const {
+ISODatetime ISODatetime::operator+(const ISODatetime &rhs) const
+{
     ISOTime new_time = GetTime() + rhs.GetTime();
     ISODate new_date = GetDate() + rhs.GetDate();
     ISODate delta = ISODate(0, 0, new_time.RetrieveOverFlowDay());
     return ISODatetime(new_date + delta, new_time);
 }
-ISODatetime ISODatetime::operator-(const ISODatetime &rhs) const {
+ISODatetime ISODatetime::operator-(const ISODatetime &rhs) const
+{
     ISOTime new_time = GetTime() + rhs.GetTime();
     ISODate new_date = GetDate() + rhs.GetDate();
     ISODate delta = ISODate(0, 0, new_time.RetrieveOverFlowDay());
     return ISODatetime(new_date + delta, new_time);
 }
-bool ISODatetime::operator==(const ISODatetime &rhs) const {
+bool ISODatetime::operator==(const ISODatetime &rhs) const
+{
     return GetDate() == rhs.GetDate() && GetTime() == rhs.GetTime();
 }
-bool ISODatetime::operator!=(const ISODatetime &rhs) const {
+bool ISODatetime::operator!=(const ISODatetime &rhs) const
+{
     return !(*this == rhs);
 }
-bool ISODatetime::operator<(const ISODatetime &rhs) const {
+bool ISODatetime::operator<(const ISODatetime &rhs) const
+{
     return (this->GetDate() < rhs.GetDate() || this->GetTime() < rhs.GetTime());
 }
-bool ISODatetime::operator<=(const ISODatetime &rhs) const {
+bool ISODatetime::operator<=(const ISODatetime &rhs) const
+{
     return (*this < rhs || *this == rhs);
 }
-bool ISODatetime::operator>(const ISODatetime &rhs) const {
+bool ISODatetime::operator>(const ISODatetime &rhs) const
+{
     return !(*this <= rhs);
 }
-bool ISODatetime::operator>=(const ISODatetime &rhs) const {
+bool ISODatetime::operator>=(const ISODatetime &rhs) const
+{
     return !(*this < rhs);
 }

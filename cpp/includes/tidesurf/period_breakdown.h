@@ -7,9 +7,9 @@
 #include "tidesurf/iso_datetime.h"
 
 namespace tidesurf {
-    class DailyBreakdownRecord {
+    class BreakdownRecord {
         public:
-        DailyBreakdownRecord(int64_t price_int, int64_t price_float, int64_t num_share, double share_percentage) 
+        BreakdownRecord(int64_t price_int, int64_t price_float, int64_t num_share, double share_percentage) 
         : price_(*(new Price(price_int, price_float, POSITIVE))), num_share_(num_share), share_percentage_(share_percentage)
         {
         }
@@ -19,30 +19,30 @@ namespace tidesurf {
             double share_percentage_;
     };
 
-    class DailyBreakdown {
+    class Breakdown {
         public:
-        DailyBreakdown(RecordPeriod record_period) : record_period_(DAY)
+        Breakdown(RecordPeriod record_period) : record_period_(record_period)
         {
-            daily_record_map_ = *(new std::map<ISODate, std::list<DailyBreakdownRecord>>());
+            record_map_ = *(new std::map<ISODatetime, std::list<BreakdownRecord>>());
         }   
 
-        void AddRecord(ISODate date, int64_t price_int, int64_t price_float, int64_t num_share, double share_percentage) {
-            if (daily_record_map_.count(date) == 0) {
-                daily_record_map_.emplace(date, *(new std::list<DailyBreakdownRecord>()));
+        void AddRecord(ISODatetime date, int64_t price_int, int64_t price_float, int64_t num_share, double share_percentage) {
+            if (record_map_.count(date) == 0) {
+                record_map_.emplace(date, *(new std::list<BreakdownRecord>()));
             }
 
-            daily_record_map_[date].push_back(*(new DailyBreakdownRecord(price_int, price_float, num_share, share_percentage)));
+            record_map_[date].push_back(*(new BreakdownRecord(price_int, price_float, num_share, share_percentage)));
         }
 
         void SortRecordMapByPrice() {
-            for (auto iterator = daily_record_map_.begin(); iterator != daily_record_map_.end(); ++iterator) {
+            for (auto iterator = record_map_.begin(); iterator != record_map_.end(); ++iterator) {
                 iterator->second.sort();
             }
         }
 
         private:
             RecordPeriod record_period_;
-            std::map<ISODate, std::list<DailyBreakdownRecord>> daily_record_map_;
+            std::map<ISODatetime, std::list<BreakdownRecord>> record_map_;
     };
 
 }
