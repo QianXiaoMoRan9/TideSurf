@@ -4,7 +4,7 @@
 #include <arrow/api.h>
 #include "tidesurf/globals.h"
 #include "tidesurf/record_table.h"
-#include "tidesurf/iso_date.h"
+#include "tidesurf/iso_datetime.h"
 
 namespace tidesurf
 {

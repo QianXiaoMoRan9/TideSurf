@@ -2,8 +2,11 @@
 
 #include <cstdint>
 #include <cmath>
-#include "math_util.h"
 #include <arrow/api.h>
+#include "tidesurf/math_util.h"
+#include "tidesurf/tidesurf_types.h"
+#include "tidesurf/tidesurf_macros.h"
+
 namespace tidesurf {
 
 /**
@@ -14,9 +17,9 @@ class Price {
 public:
     Price(float f_value, uint32_t precision = 100) {
         if (f_value >= 0) {
-            sign_ = false;
+            sign_ = POSITIVE;
         } else {
-            sign_ = true;
+            sign_ = NEGATIVE;
         }
         
         precision_ = precision;
@@ -28,7 +31,10 @@ public:
         float_part_ = (int64_t) float_part_float;
     }
 
-    Price(int64_t int_part, int64_t float_part, bool sign, uint32_t precision = 100) {
+    Price(int64_t int_part, int64_t float_part, Sign sign, uint32_t precision = 100) {
+        ASSERT(float_part >= 0, "Float Part should be non-negative");
+        ASSERT(float_part < precision, "Float part should not exceed precision");
+
         int_part_ = int_part;
         float_part_ = float_part;
         sign_ = sign;
@@ -42,6 +48,10 @@ public:
     int64_t GetFloatPart() {
         return float_part_;
     }
+
+    uint32_t GetNumFloatDigitPrecision() {
+        return num_10th(precision_);
+    }
     
     bool Positive() {
         return ! sign_;
@@ -52,7 +62,7 @@ public:
     }
 
 private:
-    bool sign_; // false is positive, true is negative
+    Sign sign_; // false is positive, true is negative
     uint32_t precision_;
     int64_t int_part_;
     int64_t float_part_;
