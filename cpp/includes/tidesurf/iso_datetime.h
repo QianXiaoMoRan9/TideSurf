@@ -1,4 +1,5 @@
 #pragma once
+#include <ctime>
 #include <arrow/api.h>
 #include "tidesurf/string_utils.h"
 #include "tidesurf/tidesurf_macros.h"
@@ -22,93 +23,57 @@ namespace tidesurf
         30,
         31,
         30,
-        31
-    };
+        31};
     static const int64_t RUN_BASE_YEAR = 2020;
     static const int64_t RUN_YEAR_PERIOD = 4;
 
-    class DeltaISODate
+    class DeltaISODatetime
     {
-        public:
-        DeltaISODate();
-        DeltaISODate(int64_t year, int64_t month, int64_t day);
-        int64_t GetYear() const;
-        int64_t GetMonth() const;
-        int64_t GetDay() const;
+    public:
+        DeltaISODatetime::DeltaISODatetime() = default;
+        DeltaISODatetime(int year, int month, int day, int hour, int minute, int second);
 
-        DeltaISODate operator+(const DeltaISODate &rhs) const;
-        DeltaISODate operator-(const DeltaISODate &rhs) const;
-        bool operator==(const DeltaISODate &rhs) const;
-        bool operator!=(const DeltaISODate &rhs) const;
-        bool operator<(const DeltaISODate &rhs) const;
-        bool operator<=(const DeltaISODate &rhs) const;
-        bool operator>(const DeltaISODate &rhs) const;
-        bool operator>=(const DeltaISODate &rhs) const;
+        int GetYear() const;
+        int GetMonth() const;
+        int GetDay() const;
+        int GetHour() const;
+        int GetMinute() const;
+        int GetSecond() const;
+
+        DeltaISODatetime operator+(const DeltaISODatetime &rhs) const;
+        DeltaISODatetime operator-(const DeltaISODatetime &rhs) const;
+        time_t ToTime_T() const;
+        bool operator==(const DeltaISODatetime &rhs) const;
+        bool operator!=(const DeltaISODatetime &rhs) const;
+        bool operator<(const DeltaISODatetime &rhs) const;
+        bool operator<=(const DeltaISODatetime &rhs) const;
+        bool operator>(const DeltaISODatetime &rhs) const;
+        bool operator>=(const DeltaISODatetime &rhs) const;
         std::string ToString() const;
 
-        protected:
-        int64_t year_;
-        int64_t month_;
-        int64_t day_;
+    protected:
+        int year_;
+        int month_;
+        int day_;
+        int hour_;
+        int minute_;
+        int second_;
     };
 
-    class ISODate : public DeltaISODate
+    class ISODatetime : public DeltaISODatetime
     {
     public:
-        ISODate(const std::string date);
-        ISODate(int64_t year, int64_t month, int64_t day);
-        ISODate operator+(const DeltaISODate &rhs) const;
-        ISODate operator-(const DeltaISODate &rhs) const;
-    };
+        ISODatetime(int year, int month, int day, int hour, int minute, int second);
+        ISODatetime(time_t time);
+        ISODatetime(struct tm *tm_struct);
 
-    class ISOTime
-    {
-    public:
-        ISOTime(const std::string time_string);
-        ISOTime(int64_t hour, int64_t minute, int64_t second);
-
-        int64_t GetHour() const;
-        int64_t GetMinute() const;
-        int64_t GetSecond() const;
-
-        ISOTime operator+(const ISOTime &rhs) const;
-        ISOTime operator-(const ISOTime &rhs) const;
-        int64_t RetrieveOverFlowDay();
-        bool operator==(const ISOTime &rhs) const;
-        bool operator!=(const ISOTime &rhs) const;
-        bool operator<(const ISOTime &rhs) const;
-        bool operator<=(const ISOTime &rhs) const;
-        bool operator>(const ISOTime &rhs) const;
-        bool operator>=(const ISOTime &rhs) const;
-
-        std::string ToString() const;
-
-    private:
-        int64_t hour_;
-        int64_t minute_;
-        int64_t second_;
-    };
-
-    class ISODatetime
-    {
-    public:
-        ISODatetime(ISODate date, ISOTime time);
-        ISODatetime(int64_t year, int64_t month, int64_t day, int64_t hour, int64_t minute, int64_t second);
-
-        ISODate GetDate() const;
-        ISOTime GetTime() const;
-
-        ISODatetime operator+(const ISODatetime &rhs) const;
-        ISODatetime operator-(const ISODatetime &rhs) const;
+        DeltaISODatetime operator+(const DeltaISODatetime &rhs) const;
+        DeltaISODatetime operator-(const DeltaISODatetime &rhs) const;
         bool operator==(const ISODatetime &rhs) const;
         bool operator!=(const ISODatetime &rhs) const;
         bool operator<(const ISODatetime &rhs) const;
         bool operator<=(const ISODatetime &rhs) const;
         bool operator>(const ISODatetime &rhs) const;
         bool operator>=(const ISODatetime &rhs) const;
-
-    private:
-        ISODate date_;
-        ISOTime time_;
     };
 } // namespace tidesurf
