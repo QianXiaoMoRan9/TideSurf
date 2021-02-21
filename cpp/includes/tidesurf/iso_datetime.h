@@ -1,6 +1,7 @@
 #pragma once
 #include <arrow/api.h>
 #include "tidesurf/string_utils.h"
+#include "tidesurf/tidesurf_macros.h"
 #include <string>
 #include <vector>
 
@@ -26,30 +27,38 @@ namespace tidesurf
     static const int64_t RUN_BASE_YEAR = 2020;
     static const int64_t RUN_YEAR_PERIOD = 4;
 
-    class ISODate
+    class DeltaISODate
     {
-    public:
-        ISODate(const std::string date);
-        ISODate(int64_t year, int64_t month, int64_t day);
+        public:
+        DeltaISODate();
+        DeltaISODate(int64_t year, int64_t month, int64_t day);
         int64_t GetYear() const;
         int64_t GetMonth() const;
         int64_t GetDay() const;
 
-        ISODate operator+(const ISODate &rhs) const;
-        ISODate operator-(const ISODate &rhs) const;
-        bool operator==(const ISODate &rhs) const;
-        bool operator!=(const ISODate &rhs) const;
-        bool operator<(const ISODate &rhs) const;
-        bool operator<=(const ISODate &rhs) const;
-        bool operator>(const ISODate &rhs) const;
-        bool operator>=(const ISODate &rhs) const;
-
+        DeltaISODate operator+(const DeltaISODate &rhs) const;
+        DeltaISODate operator-(const DeltaISODate &rhs) const;
+        bool operator==(const DeltaISODate &rhs) const;
+        bool operator!=(const DeltaISODate &rhs) const;
+        bool operator<(const DeltaISODate &rhs) const;
+        bool operator<=(const DeltaISODate &rhs) const;
+        bool operator>(const DeltaISODate &rhs) const;
+        bool operator>=(const DeltaISODate &rhs) const;
         std::string ToString() const;
 
-    private:
+        protected:
         int64_t year_;
         int64_t month_;
         int64_t day_;
+    };
+
+    class ISODate : public DeltaISODate
+    {
+    public:
+        ISODate(const std::string date);
+        ISODate(int64_t year, int64_t month, int64_t day);
+        ISODate operator+(const DeltaISODate &rhs) const;
+        ISODate operator-(const DeltaISODate &rhs) const;
     };
 
     class ISOTime

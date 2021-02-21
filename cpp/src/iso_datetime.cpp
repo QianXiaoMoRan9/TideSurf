@@ -1,36 +1,32 @@
 #include <arrow/api.h>
 #include "tidesurf/iso_datetime.h"
-
 using namespace tidesurf;
 
-ISODate::ISODate(const std::string date)
-{
-    std::vector<std::string> split = split_string(date, DATE_DELIMITER);
-    year_ = std::stoi(split[0]);
-    month_ = std::stoi(split[1]);
-    day_ = std::stoi(split[2]);
-}
-
-ISODate::ISODate(int64_t year, int64_t month, int64_t day) : year_(year), month_(month), day_(day)
+DeltaISODate::DeltaISODate() : year_(0), month_(0), day_(0)
 {
 }
 
-int64_t ISODate::GetYear() const
+
+DeltaISODate::DeltaISODate(int64_t year, int64_t month, int64_t day) : year_(year), month_(month), day_(day)
+{
+}
+
+int64_t DeltaISODate::GetYear() const
 {
     return year_;
 }
 
-int64_t ISODate::GetMonth() const
+int64_t DeltaISODate::GetMonth() const
 {
     return month_;
 }
 
-int64_t ISODate::GetDay() const
+int64_t DeltaISODate::GetDay() const
 {
     return day_;
 }
 
-ISODate ISODate::operator+(const ISODate &rhs) const
+DeltaISODate DeltaISODate::operator+(const DeltaISODate &rhs) const
 {
     int64_t added_day = GetDay() + rhs.GetDay();
     int64_t added_month = GetMonth() + rhs.GetMonth();
@@ -41,74 +37,96 @@ ISODate ISODate::operator+(const ISODate &rhs) const
 
     
     
-    return ISODate(
-        ,
-        ,
-        );
+    return DeltaISODate(
+        added_year,
+        added_month,
+        added_day);
 }
-ISODate ISODate::operator-(const ISODate &rhs) const
+DeltaISODate DeltaISODate::operator-(const DeltaISODate &rhs) const
 {
-    return ISODate(
+    return DeltaISODate(
         GetYear() - rhs.GetYear(),
         GetMonth() - rhs.GetMonth(),
         GetDay() - rhs.GetDay());
 }
 
-bool ISODate::operator==(const ISODate &rhs) const
+bool DeltaISODate::operator==(const DeltaISODate &rhs) const
 {
     return (
         GetYear() == rhs.GetYear() && GetMonth() == rhs.GetMonth() && GetDay() == rhs.GetDay());
 }
-bool ISODate::operator!=(const ISODate &rhs) const
+bool DeltaISODate::operator!=(const DeltaISODate &rhs) const
 {
     return !((*this) == rhs);
 }
-bool ISODate::operator<(const ISODate &rhs) const
+bool DeltaISODate::operator<(const DeltaISODate &rhs) const
 {
-    if (GetYear() > rhs.GetYear())
-    {
-        return false;
-    }
-    else if (GetYear() < rhs.GetYear())
-    {
-        return true;
-    }
-    // year equal
-    if (GetMonth() > rhs.GetMonth())
-    {
-        return false;
-    }
-    else if (GetMonth() < rhs.GetMonth())
-    {
-        return true;
-    }
-    // Month equal
-    if (GetDay() > rhs.GetDay())
-    {
-        return false;
-    }
-    else if (GetDay() < rhs.GetDay())
-    {
-        return true;
-    }
-    return false;
+    return (
+        GetYear() < rhs.GetYear()
+        || GetMonth() < rhs.GetMonth()
+        || GetDay() < rhs.GetDay()
+    );
 }
-bool ISODate::operator<=(const ISODate &rhs) const
+bool DeltaISODate::operator<=(const DeltaISODate &rhs) const
 {
     return (*this) == rhs || (*this) < rhs;
 }
-bool ISODate::operator>(const ISODate &rhs) const
+bool DeltaISODate::operator>(const DeltaISODate &rhs) const
 {
     return !((*this) <= rhs);
 }
-bool ISODate::operator>=(const ISODate &rhs) const
+bool DeltaISODate::operator>=(const DeltaISODate &rhs) const
 {
     return !((*this) < rhs);
 }
 
-std::string ISODate::ToString() const
+std::string DeltaISODate::ToString() const
 {
     return std::to_string(GetYear()) + DATE_DELIMITER + std::to_string(GetMonth()) + DATE_DELIMITER + std::to_string(GetDay());
+}
+
+ISODate::ISODate(const std::string date)
+{
+    std::vector<std::string> split = split_string(date, DATE_DELIMITER);
+    year_ = std::stoi(split[0]);
+    month_ = std::stoi(split[1]);
+    day_ = std::stoi(split[2]);
+}
+
+ISODate::ISODate(int64_t year, int64_t month, int64_t day) : DeltaISODate(year, month, day) {
+    ASSERT(year >= 0, "ISODate year should be non zero");
+    ASSERT(month > 0 && month < 13, "ISODate month should between 1 and 12");
+    if (month == 2 && (year - RUN_BASE_YEAR)%RUN_YEAR_PERIOD == 0) {
+        ASSERT(day > 0 && day <= 29, "ISODate day in RUN year should between 1 and 29");
+    } else {
+        ASSERT(day > 0 && day <= MONTH_DAY_MAP[month], "ISO day should between the acceptable range");
+    }
+}
+
+ISODate ISODate::operator+(const DeltaISODate &rhs) const {
+    int64_t added_day = GetDay() + rhs.GetDay();
+    int64_t added_month = GetMonth() + rhs.GetMonth();
+    int64_t added_year = GetYear() + rhs.GetYear();
+
+    // TODO: implement to support real + delta operator
+    if (added_month > 12) {
+        added_year += added_month / 12;
+        added_month %= 12;
+    } else if (added_month == 0) {
+        added_year --;
+        added_month = 12;
+    } else if (added_month < 0) {
+        added_year -= added_month / 12;
+        added_month = added_month % 12;
+    }
+
+
+    return ISODate(added_year, added_month, added_day);
+
+}
+
+ISODate ISODate::operator-(const DeltaISODate &rhs) const {
+    return (*this) + DeltaISODate(-1 * rhs.GetYear(), -1 * rhs.GetMonth(), -1 * rhs.GetDay());
 }
 
 ISOTime::ISOTime(const std::string time_string)
