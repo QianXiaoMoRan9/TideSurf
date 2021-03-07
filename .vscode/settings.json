@@ -60,5 +60,6 @@
         "unordered_set": "cpp",
         "regex": "cpp",
         "shared_mutex": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/cpp"
 }

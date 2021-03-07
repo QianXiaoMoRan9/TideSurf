@@ -10,8 +10,8 @@ class StringUtilsTest : public ::testing::Test
 };
 
 TEST_F(StringUtilsTest, StringSplitNaive) {
-    std::string s = "return";
-    std::string delimiter = ".";
+    const std::string s = "return";
+    const std::string delimiter = ".";
 
     std::vector<std::string> res = split_string(s, delimiter);
     EXPECT_EQ(res.size(), 1);

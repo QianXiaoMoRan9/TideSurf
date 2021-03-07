@@ -27,6 +27,8 @@
 #include "tidesurf/record_table.h"
 #include "tidesurf/globals.h"
 #include "tidesurf/file_io.h"
+#include "tidesurf/string_utils.h"
+#include "tidesurf/price.h"
 
 using arrow::DoubleBuilder;
 using arrow::Int64Builder;
@@ -155,5 +157,7 @@ void read_single_column_chunk() {
 }
 
 int main(int argc, char** argv) {
-    return 0;
+  tidesurf::split_string("dkfdkfhdkfhdkf", "f");
+  tidesurf::Price(34.56, 100);
+  return 0;
 }

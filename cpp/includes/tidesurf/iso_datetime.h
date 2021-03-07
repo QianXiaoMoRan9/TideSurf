@@ -30,7 +30,7 @@ namespace tidesurf
     class DeltaISODatetime
     {
     public:
-        DeltaISODatetime::DeltaISODatetime() = default;
+        DeltaISODatetime() = default;
         DeltaISODatetime(int year, int month, int day, int hour, int minute, int second);
 
         int GetYear() const;

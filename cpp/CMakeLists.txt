@@ -1,36 +1,52 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 project(TideSurf)
+
+find_package(Threads REQUIRED)
+find_package(Arrow REQUIRED)
+find_package(Parquet REQUIRED PATHS /usr/lib/x86_64-linux-gnu/cmake/arrow)
+find_package(GTest REQUIRED)
+
+
 include(ExternalProject)
 include(FindPkgConfig)
 include(GNUInstallDirs)
+include(GoogleTest)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
+file(GLOB_RECURSE TIDESURF_CPP
+    ${PROJECT_SOURCE_DIR}/src/tidesurf/*.cpp
+)
+
 file(GLOB_RECURSE TIDESURF_EXECUTABLES
-    ${PROJECT_SOURCE_DIR}/src/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/main/*.cpp
 )
 
 file(GLOB_RECURSE TIDESURF_TEST_EXECUTABLES
     ${PROJECT_SOURCE_DIR}/test/*.cpp
 )
 
+set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/lib/")
+include_directories("${PROJECT_SOURCE_DIR}/includes")
+link_directories("${CMAKE_SOURCE_DIR}/lib/")
 
-find_package(Threads REQUIRED)
-find_package(Arrow REQUIRED)
-find_package(Parquet REQUIRED PATHS /usr/lib/x86_64-linux-gnu/cmake/arrow)
 
-add_executable(tidesurf ${TIDESURF_EXECUTABLES})
-target_link_libraries(tidesurf PRIVATE arrow_shared)
-target_link_libraries(tidesurf PRIVATE parquet_shared)
-target_link_libraries(tidesurf PRIVATE Threads::Threads)
-target_include_directories(tidesurf PRIVATE ${PROJECT_SOURCE_DIR}/includes)
-target_include_directories(tidesurf PRIVATE ${PROJECT_SOURCE_DIR}/includes)
+add_library(tidesurf STATIC ${TIDESURF_CPP})
 
-find_package(GTest REQUIRED)
+add_executable(tidesurf_main ${TIDESURF_EXECUTABLES})
+target_link_libraries(tidesurf_main PUBLIC arrow_shared)
+target_link_libraries(tidesurf_main PUBLIC parquet_shared)
+target_link_libraries(tidesurf_main PUBLIC Threads::Threads)
+target_link_libraries(tidesurf_main PUBLIC tidesurf)
+
 enable_testing()
-include(GoogleTest)
 set(TestArgs --foo 1 --bar 2)
 add_executable(unit_tests ${TIDESURF_TEST_EXECUTABLES})
-target_include_directories(unit_tests PRIVATE ${PROJECT_SOURCE_DIR}/includes)
-target_link_libraries(unit_tests GTest::GTest GTest::Main)
+target_link_libraries(unit_tests 
+    PUBLIC tidesurf
+    PUBLIC GTest::GTest GTest::Main
+    PUBLIC arrow_shared
+    parquet_shared
+    Threads::Threads)
+# target_link_directories(unit_tests PUBLIC "${CMAKE_SOURCE_DIR}/lib/")
 gtest_add_tests(TARGET unit_tests "${TestArgs}" AUTO)
