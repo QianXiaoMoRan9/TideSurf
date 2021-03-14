@@ -1,58 +1,54 @@
 #pragma once
+
 #include <cstdint>
 #include <iostream>
+#include <utility>
+#include <unordered_map>
+#include <list>
 #include <arrow/api.h>
+#include "tidesurf/price.h"
 #include "tidesurf/split_share.h"
 #include "tidesurf/iso_datetime.h"
-namespace tidesurf
-{
 
-    class Stock
-    {
+namespace tidesurf {
+
+    /**
+     * 
+     * Major stock object that holds SHARABLE data
+     * 
+     * This includes the current statistics, and historical statistics
+     * 
+     * 
+     * 
+     */
+    class Stock {
     public:
-        Stock(std::string code, std::string name)
-            : code_(code),
-              name_(name)
-        {
-            price_ = -1.0;
-        }
+        Stock(std::string code, std::string name, std::string abbreviation = "N/A");
 
-        double GetPrice() {
-            return price_;
-        }
 
-        void SetPrice(double price) {
-            price_ = price;
-        }
+        Price GetPrice() const;
+        std::string GetCode() const;
+        std::string GetName() const;
+        std::string GetAbbreviation() const;
 
-        std::string GetCode() {
-            return code_;
-        }
 
-        std::string GetName() {
-            return name_;
-        }
+        void SetPrice(Price price);
+        void SetName(std::string name);
+        void SetAbbreviation(std::string abbrev);
+
 
     private:
-        double price_;
+        Price price_;
         std::string name_;
         std::string code_;
+        std::string abbreviation_;
     };
 
-    class AStock : public Stock
-    {
-        public:
-        AStock(std::string code, std::string name, std::string abbreviation, AStockSplitShare split_share) 
-        : Stock(code, name), abbreviation_(abbreviation), split_share_records_(split_share) {
+    class AStock : public Stock {
+    public:
+        AStock(std::string code, std::string name, std::string abbreviation, AStockSplitShare split_share);
 
-        }
-
-        std::string GetAbbreviation() {
-            return abbreviation_;
-        }
-
-        private:
-        std::string abbreviation_;
+    private:
         AStockSplitShare split_share_records_;
     };
 

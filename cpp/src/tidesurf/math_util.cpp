@@ -2,7 +2,7 @@
 
 using namespace tidesurf;
 
-uint32_t power(uint32_t base, uint32_t exp) {
+uint32_t tidesurf::power(uint32_t base, uint32_t exp) {
     int result = 1;
     while (exp > 0) {
         if (exp & 1) {
@@ -14,9 +14,8 @@ uint32_t power(uint32_t base, uint32_t exp) {
     return result;
 }
 
-uint32_t num_10th(int64_t num) {
+uint32_t tidesurf::num_10th(uint32_t num) {
     uint32_t result = 0;
-    ASSERT(num != 0xFFFFFFFFFFFFFFFF, "num_10th does not support value 0xFFFFFFFFFFFFFFFF");
     if (num < 0) {
         num = -1 * num;
     }
@@ -26,3 +25,6 @@ uint32_t num_10th(int64_t num) {
     }
     return result;
 }
+
+
+

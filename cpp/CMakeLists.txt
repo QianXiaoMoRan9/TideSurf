@@ -31,9 +31,9 @@ include_directories("${PROJECT_SOURCE_DIR}/includes")
 link_directories("${CMAKE_SOURCE_DIR}/lib/")
 
 
-add_library(tidesurf STATIC ${TIDESURF_CPP})
+add_library(tidesurf STATIC ${TIDESURF_CPP} src/tidesurf/stock.cpp src/tidesurf/interval_record.cpp includes/tidesurf/interval_record.h)
 
-add_executable(tidesurf_main ${TIDESURF_EXECUTABLES})
+add_executable(tidesurf_main ${TIDESURF_EXECUTABLES} src/tidesurf/stock.cpp src/tidesurf/interval_record.cpp includes/tidesurf/interval_record.h)
 target_link_libraries(tidesurf_main PUBLIC arrow_shared)
 target_link_libraries(tidesurf_main PUBLIC parquet_shared)
 target_link_libraries(tidesurf_main PUBLIC Threads::Threads)
@@ -41,7 +41,7 @@ target_link_libraries(tidesurf_main PUBLIC tidesurf)
 
 enable_testing()
 set(TestArgs --foo 1 --bar 2)
-add_executable(unit_tests ${TIDESURF_TEST_EXECUTABLES})
+add_executable(unit_tests ${TIDESURF_TEST_EXECUTABLES} src/tidesurf/stock.cpp src/tidesurf/interval_record.cpp includes/tidesurf/interval_record.h)
 target_link_libraries(unit_tests 
     PUBLIC tidesurf
     PUBLIC GTest::GTest GTest::Main
