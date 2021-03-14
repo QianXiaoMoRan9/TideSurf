@@ -31,7 +31,7 @@ include_directories("${PROJECT_SOURCE_DIR}/includes")
 link_directories("${CMAKE_SOURCE_DIR}/lib/")
 
 
-add_library(tidesurf STATIC ${TIDESURF_CPP} src/tidesurf/stock.cpp src/tidesurf/interval_record.cpp includes/tidesurf/interval_record.h)
+add_library(tidesurf STATIC ${TIDESURF_CPP} src/tidesurf/stock.cpp src/tidesurf/interval_record.cpp includes/tidesurf/interval_record.h src/tidesurf/price_volume_histogram.cpp includes/tidesurf/price_volume_histogram.h)
 
 add_executable(tidesurf_main ${TIDESURF_EXECUTABLES} src/tidesurf/stock.cpp src/tidesurf/interval_record.cpp includes/tidesurf/interval_record.h)
 target_link_libraries(tidesurf_main PUBLIC arrow_shared)

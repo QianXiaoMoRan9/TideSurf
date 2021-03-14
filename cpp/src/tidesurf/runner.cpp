@@ -21,7 +21,7 @@ TideSurfConfig::TideSurfConfig(const char *config_json_file)
 
     history_folder_path_ = document["history_folder_path"].GetString();
     app_data_path_ = document["app_data_path"].GetString();
-    delete cstring;
+    delete[] cstring;
 }
 
 Runner::Runner(const char *config_json_path) {

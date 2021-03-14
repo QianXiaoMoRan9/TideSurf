@@ -181,6 +181,19 @@ CMakeFiles/tidesurf.dir/src/tidesurf/string_utils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tidesurf.dir/src/tidesurf/string_utils.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/stevenlu/Desktop/TideSurf/cpp/src/tidesurf/string_utils.cpp -o CMakeFiles/tidesurf.dir/src/tidesurf/string_utils.cpp.s
 
+CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.o: CMakeFiles/tidesurf.dir/flags.make
+CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.o: ../includes/tidesurf/price_volume_histogram.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/stevenlu/Desktop/TideSurf/cpp/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.o -c /home/stevenlu/Desktop/TideSurf/cpp/includes/tidesurf/price_volume_histogram.cpp
+
+CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/stevenlu/Desktop/TideSurf/cpp/includes/tidesurf/price_volume_histogram.cpp > CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.i
+
+CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/stevenlu/Desktop/TideSurf/cpp/includes/tidesurf/price_volume_histogram.cpp -o CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.s
+
 # Object files for target tidesurf
 tidesurf_OBJECTS = \
 "CMakeFiles/tidesurf.dir/src/tidesurf/dahsboard_server.cpp.o" \
@@ -190,7 +203,8 @@ tidesurf_OBJECTS = \
 "CMakeFiles/tidesurf.dir/src/tidesurf/price.cpp.o" \
 "CMakeFiles/tidesurf.dir/src/tidesurf/runner.cpp.o" \
 "CMakeFiles/tidesurf.dir/src/tidesurf/stock.cpp.o" \
-"CMakeFiles/tidesurf.dir/src/tidesurf/string_utils.cpp.o"
+"CMakeFiles/tidesurf.dir/src/tidesurf/string_utils.cpp.o" \
+"CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.o"
 
 # External object files for target tidesurf
 tidesurf_EXTERNAL_OBJECTS =
@@ -203,9 +217,10 @@ tidesurf_EXTERNAL_OBJECTS =
 ../lib/libtidesurf.a: CMakeFiles/tidesurf.dir/src/tidesurf/runner.cpp.o
 ../lib/libtidesurf.a: CMakeFiles/tidesurf.dir/src/tidesurf/stock.cpp.o
 ../lib/libtidesurf.a: CMakeFiles/tidesurf.dir/src/tidesurf/string_utils.cpp.o
+../lib/libtidesurf.a: CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.o
 ../lib/libtidesurf.a: CMakeFiles/tidesurf.dir/build.make
 ../lib/libtidesurf.a: CMakeFiles/tidesurf.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/stevenlu/Desktop/TideSurf/cpp/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX static library ../lib/libtidesurf.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/stevenlu/Desktop/TideSurf/cpp/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX static library ../lib/libtidesurf.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/tidesurf.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/tidesurf.dir/link.txt --verbose=$(VERBOSE)
 

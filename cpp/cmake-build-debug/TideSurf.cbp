@@ -191,6 +191,12 @@
 			<Option target="tidesurf_main"/>
 			<Option target="unit_tests"/>
 		</Unit>
+		<Unit filename="/home/stevenlu/Desktop/TideSurf/cpp/includes/tidesurf/price_volume_histogram.cpp">
+			<Option target="tidesurf"/>
+		</Unit>
+		<Unit filename="/home/stevenlu/Desktop/TideSurf/cpp/includes/tidesurf/price_volume_histogram.h">
+			<Option target="tidesurf"/>
+		</Unit>
 		<Unit filename="/home/stevenlu/Desktop/TideSurf/cpp/src/main/main.cpp">
 			<Option target="tidesurf_main"/>
 		</Unit>

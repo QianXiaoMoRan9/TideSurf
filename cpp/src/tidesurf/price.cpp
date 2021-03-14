@@ -42,6 +42,9 @@ std::string Price::ToString() const {
     return res;
 }
 
+double Price::ToDouble() const {
+    return ((double)int_part_) + ((double)float_part_) / ((double)precision_);
+}
 
 TwoDecimalPrice::TwoDecimalPrice(const double f_value) : Price(f_value, 100) {
 }

@@ -49,6 +49,8 @@ namespace tidesurf
 
         std::string ToString() const;
 
+        double ToDouble() const;
+
         friend std::ostream &operator<<(std::ostream &os, const Price &price) {
             const std::string str = price.ToString();
             os << str;

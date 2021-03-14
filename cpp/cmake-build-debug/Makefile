@@ -180,6 +180,33 @@ unit_tests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_tests.dir/build.make CMakeFiles/unit_tests.dir/build
 .PHONY : unit_tests/fast
 
+includes/tidesurf/price_volume_histogram.o: includes/tidesurf/price_volume_histogram.cpp.o
+
+.PHONY : includes/tidesurf/price_volume_histogram.o
+
+# target to build an object file
+includes/tidesurf/price_volume_histogram.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tidesurf.dir/build.make CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.o
+.PHONY : includes/tidesurf/price_volume_histogram.cpp.o
+
+includes/tidesurf/price_volume_histogram.i: includes/tidesurf/price_volume_histogram.cpp.i
+
+.PHONY : includes/tidesurf/price_volume_histogram.i
+
+# target to preprocess a source file
+includes/tidesurf/price_volume_histogram.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tidesurf.dir/build.make CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.i
+.PHONY : includes/tidesurf/price_volume_histogram.cpp.i
+
+includes/tidesurf/price_volume_histogram.s: includes/tidesurf/price_volume_histogram.cpp.s
+
+.PHONY : includes/tidesurf/price_volume_histogram.s
+
+# target to generate assembly for a file
+includes/tidesurf/price_volume_histogram.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tidesurf.dir/build.make CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.s
+.PHONY : includes/tidesurf/price_volume_histogram.cpp.s
+
 src/main/main.o: src/main/main.cpp.o
 
 .PHONY : src/main/main.o
@@ -501,6 +528,9 @@ help:
 	@echo "... tidesurf"
 	@echo "... tidesurf_main"
 	@echo "... unit_tests"
+	@echo "... includes/tidesurf/price_volume_histogram.o"
+	@echo "... includes/tidesurf/price_volume_histogram.i"
+	@echo "... includes/tidesurf/price_volume_histogram.s"
 	@echo "... src/main/main.o"
 	@echo "... src/main/main.i"
 	@echo "... src/main/main.s"

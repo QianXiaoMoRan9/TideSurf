@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "../lib/libtidesurf.a"
   "../lib/libtidesurf.pdb"
+  "CMakeFiles/tidesurf.dir/includes/tidesurf/price_volume_histogram.cpp.o"
   "CMakeFiles/tidesurf.dir/src/tidesurf/dahsboard_server.cpp.o"
   "CMakeFiles/tidesurf.dir/src/tidesurf/interval_record.cpp.o"
   "CMakeFiles/tidesurf.dir/src/tidesurf/iso_datetime.cpp.o"
